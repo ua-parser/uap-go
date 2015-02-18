@@ -7,15 +7,27 @@ import (
 	"testing"
 )
 
-func dvcInitTesting(file string) []map[string]string {
-	fmt.Print(file + ": ")
-	testFile, _ := ioutil.ReadFile(file)
+func getTestMap(file string) []map[string]string {
+	fmt.Printf("File : %s\n", file)
+	testFile, err := ioutil.ReadFile(file)
+
+	if err != nil {
+		fmt.Printf("error reading file: %s\n", err)
+		return nil
+	}
+
 	testMap := make(map[string][]map[string]string)
-	_ = yaml.Unmarshal(testFile, &testMap)
+	err = yaml.Unmarshal(testFile, &testMap)
+	if err != nil {
+		fmt.Printf("error parsing yaml: %s\n", err)
+		return nil
+	}
+
 	return testMap["test_cases"]
 }
 
-var dvcDefaultRegexFile string = "../../regexes.yaml"
+var uapCoreRoot string = "../uap-core"
+var dvcDefaultRegexFile string = uapCoreRoot + "/regexes.yaml"
 var dvcParser *Parser = nil
 
 func dvcInitParser(regexFile string) {
@@ -24,9 +36,23 @@ func dvcInitParser(regexFile string) {
 	}
 }
 
-func dvcHelperTest(file string) bool {
+func deviceTest(c *Client, test map[string]string) bool {
+	if c.Device.Family != test["family"] {
+		fmt.Printf("Expected: %v\nActual: %v\n", test, c.Device)
+		return false
+	}
+	return true
+}
+
+func testHelper(file string, test_fn func(*Client, map[string]string) bool) bool {
 	dvcInitParser(dvcDefaultRegexFile)
-	tests := dvcInitTesting(file)
+
+	tests := getTestMap(file)
+	if tests == nil || len(tests) == 0 {
+		fmt.Println("FAIL\nCouldn't open test file or no tests found")
+		return false
+	}
+
 	for _, test := range tests {
 
 		// Other language ports of ua_parser skips js_ua in testing
@@ -35,11 +61,10 @@ func dvcHelperTest(file string) bool {
 		}
 
 		testingString := test["user_agent_string"]
-		dvc := dvcParser.ParseDevice(testingString)
+		client := dvcParser.Parse(testingString)
 
-		if dvc.Family != test["family"] {
+		if !test_fn(client, test) {
 			fmt.Println("FAIL")
-			fmt.Printf("Expected: %v\nActual: %v\n", test, dvc)
 			return false
 		}
 	}
@@ -47,7 +72,7 @@ func dvcHelperTest(file string) bool {
 }
 
 func TestDevice(t *testing.T) {
-	if !dvcHelperTest("../../test_resources/test_device.yaml") {
+	if !testHelper(uapCoreRoot+"/tests/test_device.yaml", deviceTest) {
 		t.Fail()
 	} else {
 		fmt.Println("PASS")

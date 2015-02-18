@@ -2,7 +2,6 @@ package uaparser
 
 import (
 	"regexp"
-	"strings"
 )
 
 type UserAgent struct {
@@ -21,32 +20,28 @@ type UserAgentPattern struct {
 }
 
 func (uaPattern *UserAgentPattern) Match(line string, ua *UserAgent) {
-	bytes := uaPattern.Regexp.FindStringSubmatch(line)
-	if len(bytes) > 0 {
+	matches := uaPattern.Regexp.FindStringSubmatch(line)
+	if len(matches) > 0 {
 		groupCount := uaPattern.Regexp.NumSubexp()
 
 		if len(uaPattern.FamilyReplacement) > 0 {
-			if strings.Contains(uaPattern.FamilyReplacement, "$1") && groupCount >= 1 && len(bytes) >= 2 {
-				ua.Family = strings.Replace(uaPattern.FamilyReplacement, "$1", bytes[1], 1)
-			} else {
-				ua.Family = uaPattern.FamilyReplacement
-			}
+			ua.Family = singleMatchReplacement(uaPattern.FamilyReplacement, matches, 1)
 		} else if groupCount >= 1 {
-			ua.Family = bytes[1]
+			ua.Family = matches[1]
 		}
 
 		if len(uaPattern.V1Replacement) > 0 {
-			ua.Major = uaPattern.V1Replacement
+			ua.Major = singleMatchReplacement(uaPattern.V1Replacement, matches, 2)
 		} else if groupCount >= 2 {
-			ua.Major = bytes[2]
+			ua.Major = matches[2]
 		}
 
 		if len(uaPattern.V2Replacement) > 0 {
-			ua.Minor = uaPattern.V2Replacement
+			ua.Minor = singleMatchReplacement(uaPattern.V2Replacement, matches, 3)
 		} else if groupCount >= 3 {
-			ua.Minor = bytes[3]
+			ua.Minor = matches[3]
 			if groupCount >= 4 {
-				ua.Patch = bytes[4]
+				ua.Patch = matches[4]
 			}
 		}
 	}
