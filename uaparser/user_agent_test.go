@@ -2,20 +2,10 @@ package uaparser
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"testing"
 )
 
-func uaInitTesting(file string) []map[string]string {
-	fmt.Print(file + ": ")
-	testFile, _ := ioutil.ReadFile(file)
-	testMap := make(map[string][]map[string]string)
-	_ = yaml.Unmarshal(testFile, &testMap)
-	return testMap["test_cases"]
-}
-
-var uaDefaultRegexFile string = "../../regexes.yaml"
+var uaDefaultRegexFile string = uapCoreRoot + "/regexes.yaml"
 var uaParser *Parser = nil
 
 func uaInitParser(regexFile string) {
@@ -24,31 +14,18 @@ func uaInitParser(regexFile string) {
 	}
 }
 
-func uaHelperTest(file string) bool {
-	uaInitParser(uaDefaultRegexFile)
-	tests := uaInitTesting(file)
-	for _, test := range tests {
-
-		// Other language ports of ua_parser skips js_ua in testing
-		if test["js_ua"] != "" {
-			continue
-		}
-
-		testingString := test["user_agent_string"]
-		ua := uaParser.ParseUserAgent(testingString)
-
-		if ua.Family != test["family"] || ua.Major != test["major"] ||
-			ua.Minor != test["minor"] || ua.Patch != test["patch"] {
-			fmt.Println("FAIL")
-			fmt.Printf("Expected: %v\nActual: %v\n", test, ua)
-			return false
-		}
+func uaTest(c *Client, test map[string]string) bool {
+	ua := c.UserAgent
+	if ua.Family != test["family"] || ua.Major != test["major"] ||
+		ua.Minor != test["minor"] || ua.Patch != test["patch"] {
+		fmt.Printf("Expected: %v\nActual: %v\n", test, ua)
+		return false
 	}
 	return true
 }
 
 func TestUserAgent(t *testing.T) {
-	if !uaHelperTest("../../test_resources/test_user_agent_parser.yaml") {
+	if !testHelper(uapCoreRoot+"/tests/test_ua.yaml", uaTest) {
 		t.Fail()
 	} else {
 		fmt.Println("PASS")
@@ -56,7 +33,7 @@ func TestUserAgent(t *testing.T) {
 }
 
 func TestFirefoxUserAgents(t *testing.T) {
-	if !uaHelperTest("../../test_resources/firefox_user_agent_strings.yaml") {
+	if !testHelper(uapCoreRoot+"/test_resources/firefox_user_agent_strings.yaml", uaTest) {
 		t.Fail()
 	} else {
 		fmt.Println("PASS")
@@ -64,7 +41,7 @@ func TestFirefoxUserAgents(t *testing.T) {
 }
 
 func TestPgtsBrowsersList(t *testing.T) {
-	if !uaHelperTest("../../test_resources/pgts_browser_list.yaml") {
+	if !testHelper(uapCoreRoot+"/test_resources/pgts_browser_list.yaml", uaTest) {
 		t.Fail()
 	} else {
 		fmt.Println("PASS")

@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"reflect"
 	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -170,4 +172,12 @@ func (parser *Parser) Parse(line string) *Client {
 	cli.Os = parser.ParseOs(line)
 	cli.Device = parser.ParseDevice(line)
 	return cli
+}
+
+func singleMatchReplacement(replacement string, matches []string, idx int) string {
+	token := "$" + strconv.Itoa(idx)
+	if strings.Contains(replacement, token) {
+		return strings.Replace(replacement, token, matches[idx], -1)
+	}
+	return replacement
 }
