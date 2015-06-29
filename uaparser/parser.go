@@ -55,8 +55,18 @@ func New(regexFile string) (*Parser, error) {
 		return nil, err
 	}
 
+	return parser.newFromBytes(data)
+}
+
+func NewFromBytes(regexBytes []byte) (*Parser, error) {
+	parser := new(Parser)
+
+	return parser.newFromBytes(regexBytes)
+}
+
+func (parser *Parser) newFromBytes(data []byte) (*Parser, error) {
 	m := make(map[string][]map[string]string)
-	err = yaml.Unmarshal(data, &m)
+	err := yaml.Unmarshal(data, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +125,6 @@ func New(regexFile string) (*Parser, error) {
 	parser.DevicePatterns = dvcPatterns
 
 	return parser, nil
-
 }
 
 func (parser *Parser) ParseUserAgent(line string) *UserAgent {
