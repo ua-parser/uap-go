@@ -14,6 +14,7 @@ type UserAgent struct {
 type UserAgentPattern struct {
 	Regexp            *regexp.Regexp
 	Regex             string
+	RegexFlag		  string
 	FamilyReplacement string
 	V1Replacement     string
 	V2Replacement     string

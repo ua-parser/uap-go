@@ -11,7 +11,10 @@ type Device struct {
 type DevicePattern struct {
 	Regexp            *regexp.Regexp
 	Regex             string
+	RegexFlag         string
+	BrandReplacement  string
 	DeviceReplacement string
+	ModelReplacement  string
 }
 
 func (dvcPattern *DevicePattern) Match(line string, dvc *Device) {
