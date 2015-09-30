@@ -30,7 +30,7 @@ user_agent_parsers:
   - regex: '(Google-HTTP-Java-Client|Apache-HttpClient|http%20client|Python-urllib|HttpMonitor|TLSProber|WinHTTP|JNLP)(?:[ /](\d+)(?:\.(\d+)(?:\.(\d+))?)?)?'
 
   # Bots
-  - regex: '(1470\.net crawler|50\.nu|8bo Crawler Bot|Aboundex|Accoona-[A-z]+-Agent|AdsBot-Google(?:-[a-z]+)?|altavista|AppEngine-Google|archive.*?\.org_bot|archiver|Ask Jeeves|[Bb]ai[Dd]u[Ss]pider(?:-[A-Za-z]+)*|bingbot|BingPreview|blitzbot|BlogBridge|BoardReader(?: [A-Za-z]+)*|boitho.com-dc|BotSeer|\b\w*favicon\w*\b|\bYeti(?:-[a-z]+)?|Catchpoint bot|[Cc]harlotte|Checklinks|clumboot|Comodo HTTP\(S\) Crawler|Comodo-Webinspector-Crawler|ConveraCrawler|CRAWL-E|CrawlConvera|Daumoa(?:-feedfetcher)?|Feed Seeker Bot|findlinks|Flamingo_SearchEngine|FollowSite Bot|furlbot|Genieo|gigabot|GomezAgent|gonzo1|(?:[a-zA-Z]+-)?Googlebot(?:-[a-zA-Z]+)?|Google SketchUp|grub-client|gsa-crawler|heritrix|HiddenMarket|holmes|HooWWWer|htdig|ia_archiver|ICC-Crawler|Icarus6j|ichiro(?:/mobile)?|IconSurf|IlTrovatore(?:-Setaccio)?|InfuzApp|Innovazion Crawler|InternetArchive|IP2[a-z]+Bot|jbot\b|KaloogaBot|Kraken|Kurzor|larbin|LEIA|LesnikBot|Linguee Bot|LinkAider|LinkedInBot|Lite Bot|Llaut|lycos|Mail\.RU_Bot|masidani_bot|Mediapartners-Google|Microsoft .*? Bot|mogimogi|mozDex|MJ12bot|msnbot(?:-media *)?|msrbot|netresearch|Netvibes|NewsGator[^/]*|^NING|Nutch[^/]*|Nymesis|ObjectsSearch|Orbiter|OOZBOT|PagePeeker|PagesInventory|PaxleFramework|Peeplo Screenshot Bot|PlantyNet_WebRobot|Pompos|Read%20Later|Reaper|RedCarpet|Retreiver|Riddler|Riddler|Rival IQ|scooter|Scrapy|Scrubby|searchsight|seekbot|semanticdiscovery|Simpy|SimplePie|SEOstats|SimpleRSS|Slurp|snappy|Speedy Spider|Squrl Java|TheUsefulbot|ThumbShotsBot|Thumbshots\.ru|TwitterBot|URL2PNG|Vagabondo|VoilaBot|^vortex|Votay bot|^voyager|WASALive.Bot|Web-sniffer|WebThumb|WeSEE:[A-z]+|WhatWeb|WIRE|WordPress|Wotbox|www\.almaden\.ibm\.com|Xenu(?:.s)? Link Sleuth|Xerka [A-z]+Bot|yacy(?:bot)?|Yahoo[a-z]*Seeker|Yahoo! Slurp|Yandex\w+|YodaoBot(?:-[A-z]+)?|YottaaMonitor|Yowedo|^Zao|^Zao-Crawler|ZeBot_www\.ze\.bz|ZooShot|ZyBorg)(?:[ /]v?(\d+)(?:\.(\d+)(?:\.(\d+))?)?)?'
+  - regex: '(1470\.net crawler|50\.nu|8bo Crawler Bot|Aboundex|Accoona-[A-z]+-Agent|AdsBot-Google(?:-[a-z]+)?|altavista|AppEngine-Google|archive.*?\.org_bot|archiver|Ask Jeeves|[Bb]ai[Dd]u[Ss]pider(?:-[A-Za-z]+)*|bingbot|BingPreview|blitzbot|BlogBridge|BoardReader(?: [A-Za-z]+)*|boitho.com-dc|BotSeer|\b\w*favicon\w*\b|\bYeti(?:-[a-z]+)?|Catchpoint bot|[Cc]harlotte|Checklinks|clumboot|Comodo HTTP\(S\) Crawler|Comodo-Webinspector-Crawler|ConveraCrawler|CRAWL-E|CrawlConvera|Daumoa(?:-feedfetcher)?|Feed Seeker Bot|findlinks|Flamingo_SearchEngine|FollowSite Bot|furlbot|Genieo|gigabot|GomezAgent|gonzo1|(?:[a-zA-Z]+-)?Googlebot(?:-[a-zA-Z]+)?|Google SketchUp|grub-client|gsa-crawler|heritrix|HiddenMarket|holmes|HooWWWer|htdig|ia_archiver|ICC-Crawler|Icarus6j|ichiro(?:/mobile)?|IconSurf|IlTrovatore(?:-Setaccio)?|InfuzApp|Innovazion Crawler|InternetArchive|IP2[a-z]+Bot|jbot\b|KaloogaBot|Kraken|Kurzor|larbin|LEIA|LesnikBot|Linguee Bot|LinkAider|LinkedInBot|Lite Bot|Llaut|lycos|Mail\.RU_Bot|masidani_bot|Mediapartners-Google|Microsoft .*? Bot|mogimogi|mozDex|MJ12bot|msnbot(?:-media *)?|msrbot|netresearch|Netvibes|NewsGator[^/]*|^NING|Nutch[^/]*|Nymesis|ObjectsSearch|Orbiter|OOZBOT|PagePeeker|PagesInventory|PaxleFramework|Peeplo Screenshot Bot|PlantyNet_WebRobot|Pompos|Read%20Later|Reaper|RedCarpet|Retreiver|Riddler|Riddler|Rival IQ|scooter|Scrapy|Scrubby|searchsight|seekbot|semanticdiscovery|Simpy|SimplePie|SEOstats|SimpleRSS|SiteCon|Slurp|snappy|Speedy Spider|Squrl Java|TheUsefulbot|ThumbShotsBot|Thumbshots\.ru|TwitterBot|URL2PNG|Vagabondo|VoilaBot|^vortex|Votay bot|^voyager|WASALive.Bot|Web-sniffer|WebThumb|WeSEE:[A-z]+|WhatWeb|WIRE|WordPress|Wotbox|www\.almaden\.ibm\.com|Xenu(?:.s)? Link Sleuth|Xerka [A-z]+Bot|yacy(?:bot)?|Yahoo[a-z]*Seeker|Yahoo! Slurp|Yandex\w+|YodaoBot(?:-[A-z]+)?|YottaaMonitor|Yowedo|^Zao|^Zao-Crawler|ZeBot_www\.ze\.bz|ZooShot|ZyBorg)(?:[ /]v?(\d+)(?:\.(\d+)(?:\.(\d+))?)?)?'
 
   # Bots General matcher 'name/0.0'
   - regex: '(?:\/[A-Za-z0-9\.]+)? *([A-Za-z0-9 \-_\!\[\]:]*(?:[Aa]rchiver|[Ii]ndexer|[Ss]craper|[Bb]ot|[Ss]pider|[Cc]rawl[a-z]*))/(\d+)(?:\.(\d+)(?:\.(\d+))?)?'
@@ -73,6 +73,8 @@ user_agent_parsers:
   - regex: '(Firefox).*Tablet browser (\d+)\.(\d+)\.(\d+)'
     family_replacement: 'MicroB'
   - regex: '(MozillaDeveloperPreview)/(\d+)\.(\d+)([ab]\d+[a-z]*)?'
+  - regex: '(FxiOS)/(\d+)\.(\d+)(\.(\d+))?(\.(\d+))?'
+    family_replacement: 'Firefox iOS'
 
   # e.g.: Flock/2.0b2
   - regex: '(Flock)/(\d+)\.(\d+)(b\d+?)'
@@ -255,7 +257,7 @@ user_agent_parsers:
   #### MAIN CASES - this catches > 50% of all browsers ####
 
   # Browser/major_version.minor_version.beta_version
-  - regex: '(AdobeAIR|FireWeb|Jasmine|ANTGalio|Midori|Fresco|Lobo|PaleMoon|Maxthon|Lynx|OmniWeb|Dillo|Camino|Demeter|Fluid|Fennec|Epiphany|Shiira|Sunrise|Flock|Netscape|Lunascape|WebPilot|NetFront|Netfront|Konqueror|SeaMonkey|Kazehakase|Vienna|Iceape|Iceweasel|IceWeasel|Iron|K-Meleon|Sleipnir|Galeon|GranParadiso|Opera Mini|iCab|NetNewsWire|ThunderBrowse|Iris|UP\.Browser|Bunjalloo|Google Earth|Raven for Mac|Openwave)/(\d+)\.(\d+)\.(\d+)'
+  - regex: '(AdobeAIR|FireWeb|Jasmine|ANTGalio|Midori|Fresco|Lobo|PaleMoon|Maxthon|Lynx|OmniWeb|Dillo|Camino|Demeter|Fluid|Fennec|Epiphany|Shiira|Sunrise|Spotify|Flock|Netscape|Lunascape|WebPilot|NetFront|Netfront|Konqueror|SeaMonkey|Kazehakase|Vienna|Iceape|Iceweasel|IceWeasel|Iron|K-Meleon|Sleipnir|Galeon|GranParadiso|Opera Mini|iCab|NetNewsWire|ThunderBrowse|Iris|UP\.Browser|Bunjalloo|Google Earth|Raven for Mac|Openwave)/(\d+)\.(\d+)\.(\d+)'
 
   # Outlook 2007
   - regex: 'MSOffice 12'
@@ -787,6 +789,9 @@ os_parsers:
     os_replacement: 'Mac OS X'
     os_v1_replacement: '10'
     os_v2_replacement: '10'
+  - regex: '(CF)(Network)/758\.(\d)'
+    os_replacement: 'iOS'
+    os_v1_replacement: '9'
 
   ##########
   # CFNetwork iOS Apps
@@ -810,6 +815,10 @@ os_parsers:
   - regex: 'CFNetwork/7.* Darwin/(14)\.\d+'
     os_replacement: 'iOS'
     os_v1_replacement: '8'
+    os_v2_replacement: '0'
+  - regex: 'CFNetwork/7.* Darwin/(15)\.\d+'
+    os_replacement: 'iOS'
+    os_v1_replacement: '9'
     os_v2_replacement: '0'
   # iOS Apps
   - regex: '\b(iOS[ /]|iPhone(?:/| v|[ _]OS[/,]|; | OS : |\d,\d/|\d,\d; )|iPad/)(\d{1,2})[_\.](\d{1,2})(?:[_\.](\d+))?'
@@ -873,8 +882,46 @@ os_parsers:
   ##########
   # Firefox OS
   ##########
+  - regex: '\((?:Mobile|Tablet);.+Gecko/18.0 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '1'
+    os_v2_replacement: '0'
+    os_v3_replacement: '1'
+
+  - regex: '\((?:Mobile|Tablet);.+Gecko/18.1 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '1'
+    os_v2_replacement: '1'
+
+  - regex: '\((?:Mobile|Tablet);.+Gecko/26.0 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '1'
+    os_v2_replacement: '2'
+
+  - regex: '\((?:Mobile|Tablet);.+Gecko/28.0 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '1'
+    os_v2_replacement: '3'
+
+  - regex: '\((?:Mobile|Tablet);.+Gecko/30.0 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '1'
+    os_v2_replacement: '4'
+
+  - regex: '\((?:Mobile|Tablet);.+Gecko/32.0 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '2'
+    os_v2_replacement: '0'
+
+  - regex: '\((?:Mobile|Tablet);.+Gecko/34.0 Firefox/\d+\.\d+'
+    os_replacement: 'Firefox OS'
+    os_v1_replacement: '2'
+    os_v2_replacement: '1'
+
+  # Firefox OS Generic
   - regex: '\((?:Mobile|Tablet);.+Firefox/\d+\.\d+'
     os_replacement: 'Firefox OS'
+
 
   ##########
   # BREW
@@ -2002,9 +2049,9 @@ device_parsers:
   #########
 
   - regex: '; *HTC[ _]([^;]+); Windows Phone'
-    device_replacement: 'HTC $1 $2'
+    device_replacement: 'HTC $1'
     brand_replacement: 'HTC'
-    model_replacement: '$1 $2'
+    model_replacement: '$1'
 
   # Android HTC with Version Number matcher
   # ; HTC_0P3Z11/1.12.161.3 Build
@@ -2036,9 +2083,9 @@ device_parsers:
     brand_replacement: 'HTC'
     model_replacement: '$1 $2'
   - regex: '; *(?:(?:HTC|htc)(?:_blocked)*[ _/])+([^ _/]+)(?:[ _/]([^ _/]+)(?:[ _/]([^ _/;\)]+))?)?(?: *Build|[;\)]| - )'
-    device_replacement: 'HTC $1 $2 $3 $4'
+    device_replacement: 'HTC $1 $2 $3'
     brand_replacement: 'HTC'
-    model_replacement: '$1 $2 $3 $4'
+    model_replacement: '$1 $2 $3'
   - regex: '; *(?:(?:HTC|htc)(?:_blocked)*[ _/])+([^ _/]+)(?:[ _/]([^ _/]+)(?:[ _/]([^ _/]+)(?:[ _/]([^ /;]+))?)?)?(?: *Build|[;\)]| - )'
     device_replacement: 'HTC $1 $2 $3 $4'
     brand_replacement: 'HTC'
@@ -2063,9 +2110,9 @@ device_parsers:
     model_replacement: '$1'
   - regex: '; *(ADR6200|ADR6400L|ADR6425LVW|Amaze|DesireS?|EndeavorU|Eris|EVO|Evo\d[A-Z]+|HD2|IncredibleS?|Inspire[A-Z0-9]*|Inspire[A-Z0-9]*|Sensation[A-Z0-9]*|Wildfire)[ _-](.+?)(?:[/;\)]|Build|MIUI|1\.0)'
     regex_flag: 'i'
-    device_replacement: 'HTC $1 $2 $3 $4'
+    device_replacement: 'HTC $1 $2'
     brand_replacement: 'HTC'
-    model_replacement: '$1 $2 $3 $4'
+    model_replacement: '$1 $2'
 
   #########
   # Hyundai
