@@ -2,6 +2,7 @@ package uaparser
 
 import (
 	"bytes"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"reflect"
@@ -114,7 +115,12 @@ func (parser *Parser) newFromBytes(data []byte) (*Parser, error) {
 		dvcPatterns = make([]DevicePattern, len(dvcInterfaces))
 		for i, inter := range dvcInterfaces {
 			dvcPatterns[i] = inter.(DevicePattern)
-			dvcPatterns[i].Regexp = regexp.MustCompile(dvcPatterns[i].Regex)
+			flags := ""
+			if strings.Contains(dvcPatterns[i].RegexFlag, "i") {
+				flags = "(?i)"
+			}
+			regexString := fmt.Sprintf("%s%s", flags, dvcPatterns[i].Regex)
+			dvcPatterns[i].Regexp = regexp.MustCompile(regexString)
 		}
 		wg.Done()
 	}()
