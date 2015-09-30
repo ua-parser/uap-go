@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 type Parser struct {
@@ -189,4 +190,58 @@ func singleMatchReplacement(replacement string, matches []string, idx int) strin
 		return strings.Replace(replacement, token, matches[idx], -1)
 	}
 	return replacement
+}
+
+// allMatchesReplacement replaces all tokens in format $<digit> (like $1 or $12) with values
+// at corresponding indexes (NOT POSITIONS, so $1 will be replaced with v[1], NOT v[0]) in the provided array.
+// If array doesn't have value at the index (when array length is less than the value), it remains unchanged in the string
+func allMatchesReplacement(pattern string, matches []string) string {
+	var output bytes.Buffer
+	readingToken := false
+	var readToken bytes.Buffer
+	writeTokenValue := func() {
+		if !readingToken {
+			return
+		}
+		if readToken.Len() == 0 {
+			output.WriteRune('$')
+			return
+		}
+		idx, err := strconv.Atoi(readToken.String())
+		// index is out of range when value is too big for int or when it's zero (or less) or greater than array length
+		indexOutOfRange := (err != nil && err.(*strconv.NumError).Err != strconv.ErrRange) || idx <= 0 || idx >= len(matches)
+		if indexOutOfRange {
+			output.WriteRune('$')
+			output.Write(readToken.Bytes())
+			readToken.Reset()
+			return
+		}
+		if err != nil {
+			// should never happen
+			panic(err)
+		}
+		output.WriteString(matches[idx])
+		readToken.Reset()
+	}
+	for _, r := range pattern {
+		if !readingToken && r == '$' {
+			readingToken = true
+			continue
+		}
+		if !readingToken {
+			output.WriteRune(r)
+			continue
+		}
+		if unicode.IsDigit(r) {
+			readToken.WriteRune(r)
+			continue
+		}
+		writeTokenValue()
+		readingToken = (r == '$')
+		if !readingToken {
+			output.WriteRune(r)
+		}
+	}
+	writeTokenValue()
+	return output.String()
 }
