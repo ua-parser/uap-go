@@ -18,6 +18,7 @@ type OsPattern struct {
 	OsReplacement   string
 	OsV1Replacement string
 	OsV2Replacement string
+	OsV3Replacement string
 }
 
 func (osPattern *OsPattern) Match(line string, os *Os) {
@@ -43,7 +44,9 @@ func (osPattern *OsPattern) Match(line string, os *Os) {
 			os.Minor = matches[3]
 		}
 
-		if groupCount >= 4 {
+		if len(osPattern.OsV3Replacement) > 0 {
+			os.Patch = singleMatchReplacement(osPattern.OsV3Replacement, matches, 4)
+		} else if groupCount >= 4 {
 			os.Patch = matches[4]
 		}
 
