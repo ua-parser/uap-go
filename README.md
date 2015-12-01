@@ -1,2 +1,2 @@
-@ uap-go
+# uap-go
 Golang implementation of ua-parser
