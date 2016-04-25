@@ -13,6 +13,9 @@ Contributing to the project, especially `regexes.yaml`, is both welcomed and enc
 5. Push your branch to GitHub and submit a pull request
 6. Monitor the pull request to make sure the Travis build succeeds. If it fails simply make the necessary changes to your branch and push it. Travis will re-test the changes.
 
+If you wish to update uap-core to latest master, simply run the following command and then submit a pull request with the result:
+`git subtree pull --prefix uap-core https://github.com/ua-parser/uap-core.git master --squash`
+
 That's it. If you don't feel comfortable forking the project or modifying the YAML you can also [submit an issue](https://github.com/ua-parser/uap-core/issues) that includes the appropriate user agent string and the expected results of parsing.
 
 Thanks!
