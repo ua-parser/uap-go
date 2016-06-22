@@ -13,6 +13,17 @@ This is the Go implementation of the [ua-parser](https://github.com/tobie/ua-par
     $ cd uaparser
     $ go test  # (Includes all the tests in `test_resources`)
 
+## Benching
+
+If needed, you can run benchmark on your latest feature to be compared (using `benchcmp`) against the current performance
+
+    $ cd uaparser
+    $ git checkout master
+    $ go test -bench=.  -run=none > ~/old.benchmark
+    $ git checkout my_latest_feature
+    $ go test -bench=.  -run=none > ~/new.benchmark
+    $ benchcmp ~/old.benchmark ~/new.benchmark
+
 # Example
 
 ```go
