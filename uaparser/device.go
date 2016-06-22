@@ -1,9 +1,6 @@
 package uaparser
 
-import (
-	"regexp"
-	"strings"
-)
+import "strings"
 
 type Device struct {
 	Family string
@@ -11,38 +8,29 @@ type Device struct {
 	Model  string
 }
 
-type DevicePattern struct {
-	Regexp            *regexp.Regexp
-	Regex             string
-	RegexFlag         string
-	BrandReplacement  string
-	DeviceReplacement string
-	ModelReplacement  string
-}
-
-func (dvcPattern *DevicePattern) Match(line string, dvc *Device) {
-	matches := dvcPattern.Regexp.FindStringSubmatch(line)
+func (parser *deviceParser) Match(line string, dvc *Device) {
+	matches := parser.Reg.FindStringSubmatch(line)
 	if len(matches) == 0 {
 		return
 	}
-	groupCount := dvcPattern.Regexp.NumSubexp()
+	groupCount := parser.Reg.NumSubexp()
 
-	if len(dvcPattern.DeviceReplacement) > 0 {
-		dvc.Family = allMatchesReplacement(dvcPattern.DeviceReplacement, matches)
+	if len(parser.DeviceReplacement) > 0 {
+		dvc.Family = allMatchesReplacement(parser.DeviceReplacement, matches)
 	} else if groupCount >= 1 {
 		dvc.Family = matches[1]
 	}
 	dvc.Family = strings.TrimSpace(dvc.Family)
-	if len(dvcPattern.BrandReplacement) > 0 {
-		if strings.Contains(dvcPattern.BrandReplacement, "$") {
-			dvc.Brand = allMatchesReplacement(dvcPattern.BrandReplacement, matches)
+	if len(parser.BrandReplacement) > 0 {
+		if strings.Contains(parser.BrandReplacement, "$") {
+			dvc.Brand = allMatchesReplacement(parser.BrandReplacement, matches)
 		} else {
-			dvc.Brand = dvcPattern.BrandReplacement
+			dvc.Brand = parser.BrandReplacement
 		}
 	}
 	dvc.Brand = strings.TrimSpace(dvc.Brand)
-	if len(dvcPattern.ModelReplacement) > 0 {
-		dvc.Model = allMatchesReplacement(dvcPattern.ModelReplacement, matches)
+	if len(parser.ModelReplacement) > 0 {
+		dvc.Model = allMatchesReplacement(parser.ModelReplacement, matches)
 	} else if groupCount >= 1 {
 		dvc.Model = matches[1]
 	}

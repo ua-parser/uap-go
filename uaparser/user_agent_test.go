@@ -6,11 +6,11 @@ import (
 )
 
 var uaDefaultRegexFile string = uapCoreRoot + "/regexes.yaml"
-var uaParser *Parser = nil
+var uaTestParser *Parser = nil
 
 func uaInitParser(regexFile string) {
-	if uaParser == nil {
-		uaParser, _ = New(regexFile)
+	if uaTestParser == nil {
+		uaTestParser, _ = New(regexFile)
 	}
 }
 
@@ -18,7 +18,7 @@ func uaTest(c *Client, test map[string]string) bool {
 	ua := c.UserAgent
 	if ua.Family != test["family"] || ua.Major != test["major"] ||
 		ua.Minor != test["minor"] || ua.Patch != test["patch"] {
-		fmt.Printf("Expected: %v\nActual: %v\n", test, ua)
+		fmt.Printf("Expected: %q\vActual: %#v\n", test, ua)
 		return false
 	}
 	return true
