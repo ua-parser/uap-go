@@ -8,30 +8,12 @@ type UserAgent struct {
 }
 
 func (parser *uaParser) Match(line string, ua *UserAgent) {
-	matches := parser.Reg.FindStringSubmatch(line)
+	matches := parser.Reg.FindStringSubmatchIndex(line)
 	if len(matches) > 0 {
-		groupCount := parser.Reg.NumSubexp()
-
-		if len(parser.FamilyReplacement) > 0 {
-			ua.Family = singleMatchReplacement(parser.FamilyReplacement, matches, 1)
-		} else if groupCount >= 1 {
-			ua.Family = matches[1]
-		}
-
-		if len(parser.V1Replacement) > 0 {
-			ua.Major = singleMatchReplacement(parser.V1Replacement, matches, 2)
-		} else if groupCount >= 2 {
-			ua.Major = matches[2]
-		}
-
-		if len(parser.V2Replacement) > 0 {
-			ua.Minor = singleMatchReplacement(parser.V2Replacement, matches, 3)
-		} else if groupCount >= 3 {
-			ua.Minor = matches[3]
-			if groupCount >= 4 {
-				ua.Patch = matches[4]
-			}
-		}
+		ua.Family = string(parser.Reg.ExpandString(nil, parser.FamilyReplacement, line, matches))
+		ua.Major = string(parser.Reg.ExpandString(nil, parser.V1Replacement, line, matches))
+		ua.Minor = string(parser.Reg.ExpandString(nil, parser.V2Replacement, line, matches))
+		ua.Patch = string(parser.Reg.ExpandString(nil, parser.V3Replacement, line, matches))
 	}
 }
 

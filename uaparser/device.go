@@ -9,31 +9,19 @@ type Device struct {
 }
 
 func (parser *deviceParser) Match(line string, dvc *Device) {
-	matches := parser.Reg.FindStringSubmatch(line)
+	matches := parser.Reg.FindStringSubmatchIndex(line)
+
 	if len(matches) == 0 {
 		return
 	}
-	groupCount := parser.Reg.NumSubexp()
 
-	if len(parser.DeviceReplacement) > 0 {
-		dvc.Family = allMatchesReplacement(parser.DeviceReplacement, matches)
-	} else if groupCount >= 1 {
-		dvc.Family = matches[1]
-	}
+	dvc.Family = string(parser.Reg.ExpandString(nil, parser.DeviceReplacement, line, matches))
 	dvc.Family = strings.TrimSpace(dvc.Family)
-	if len(parser.BrandReplacement) > 0 {
-		if strings.Contains(parser.BrandReplacement, "$") {
-			dvc.Brand = allMatchesReplacement(parser.BrandReplacement, matches)
-		} else {
-			dvc.Brand = parser.BrandReplacement
-		}
-	}
+
+	dvc.Brand = string(parser.Reg.ExpandString(nil, parser.BrandReplacement, line, matches))
 	dvc.Brand = strings.TrimSpace(dvc.Brand)
-	if len(parser.ModelReplacement) > 0 {
-		dvc.Model = allMatchesReplacement(parser.ModelReplacement, matches)
-	} else if groupCount >= 1 {
-		dvc.Model = matches[1]
-	}
+
+	dvc.Model = string(parser.Reg.ExpandString(nil, parser.ModelReplacement, line, matches))
 	dvc.Model = strings.TrimSpace(dvc.Model)
 }
 

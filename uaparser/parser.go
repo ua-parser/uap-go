@@ -1,13 +1,9 @@
 package uaparser
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"regexp"
-	"strconv"
-	"strings"
-	"unicode"
 
 	"gopkg.in/yaml.v2"
 )
@@ -28,6 +24,21 @@ type uaParser struct {
 	V3Replacement     string `yaml:"v3_replacement"`
 }
 
+func (ua *uaParser) setDefaults() {
+	if ua.FamilyReplacement == "" {
+		ua.FamilyReplacement = "$1"
+	}
+	if ua.V1Replacement == "" {
+		ua.V1Replacement = "$2"
+	}
+	if ua.V2Replacement == "" {
+		ua.V2Replacement = "$3"
+	}
+	if ua.V3Replacement == "" {
+		ua.V3Replacement = "$4"
+	}
+}
+
 type osParser struct {
 	Reg           *regexp.Regexp
 	Expr          string `yaml:"regex"`
@@ -37,7 +48,24 @@ type osParser struct {
 	V2Replacement string `yaml:"os_v2_replacement"`
 	V3Replacement string `yaml:"os_v3_replacement"`
 	V4Replacement string `yaml:"os_v4_replacement"`
-	V5Replacement string `yaml:"os_v5_replacement"`
+}
+
+func (os *osParser) setDefaults() {
+	if os.OSReplacement == "" {
+		os.OSReplacement = "$1"
+	}
+	if os.V1Replacement == "" {
+		os.V1Replacement = "$2"
+	}
+	if os.V2Replacement == "" {
+		os.V2Replacement = "$3"
+	}
+	if os.V3Replacement == "" {
+		os.V3Replacement = "$4"
+	}
+	if os.V4Replacement == "" {
+		os.V4Replacement = "$5"
+	}
 }
 
 type deviceParser struct {
@@ -49,27 +77,12 @@ type deviceParser struct {
 	ModelReplacement  string `yaml:"model_replacement"`
 }
 
-type Parser struct {
-	RegexesDefinitions
-}
-
-func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
-	for _, p := range parser.UA {
-		p.Reg = compileRegex(p.Flags, p.Expr)
+func (device *deviceParser) setDefaults() {
+	if device.DeviceReplacement == "" {
+		device.DeviceReplacement = "$1"
 	}
-	for _, p := range parser.OS {
-		p.Reg = compileRegex(p.Flags, p.Expr)
-	}
-	for _, p := range parser.Device {
-		p.Reg = compileRegex(p.Flags, p.Expr)
-	}
-}
-
-func compileRegex(flags, expr string) *regexp.Regexp {
-	if flags == "" {
-		return regexp.MustCompile(expr)
-	} else {
-		return regexp.MustCompile(fmt.Sprintf("(?%s)%s", flags, expr))
+	if device.ModelReplacement == "" {
+		device.ModelReplacement = "$1"
 	}
 }
 
@@ -77,6 +90,25 @@ type Client struct {
 	UserAgent *UserAgent
 	Os        *Os
 	Device    *Device
+}
+
+type Parser struct {
+	RegexesDefinitions
+}
+
+func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
+	for _, p := range parser.UA {
+		p.Reg = compileRegex(p.Flags, p.Expr)
+		p.setDefaults()
+	}
+	for _, p := range parser.OS {
+		p.Reg = compileRegex(p.Flags, p.Expr)
+		p.setDefaults()
+	}
+	for _, p := range parser.Device {
+		p.Reg = compileRegex(p.Flags, p.Expr)
+		p.setDefaults()
+	}
 }
 
 func New(regexFile string) (*Parser, error) {
@@ -97,6 +129,14 @@ func NewFromBytes(data []byte) (*Parser, error) {
 	parser.mustCompile()
 
 	return parser, nil
+}
+
+func (parser *Parser) Parse(line string) *Client {
+	cli := new(Client)
+	cli.UserAgent = parser.ParseUserAgent(line)
+	cli.Os = parser.ParseOs(line)
+	cli.Device = parser.ParseDevice(line)
+	return cli
 }
 
 func (parser *Parser) ParseUserAgent(line string) *UserAgent {
@@ -147,72 +187,10 @@ func (parser *Parser) ParseDevice(line string) *Device {
 	return dvc
 }
 
-func (parser *Parser) Parse(line string) *Client {
-	cli := new(Client)
-	cli.UserAgent = parser.ParseUserAgent(line)
-	cli.Os = parser.ParseOs(line)
-	cli.Device = parser.ParseDevice(line)
-	return cli
-}
-
-func singleMatchReplacement(replacement string, matches []string, idx int) string {
-	token := "$" + strconv.Itoa(idx)
-	if strings.Contains(replacement, token) {
-		return strings.Replace(replacement, token, matches[idx], -1)
+func compileRegex(flags, expr string) *regexp.Regexp {
+	if flags == "" {
+		return regexp.MustCompile(expr)
+	} else {
+		return regexp.MustCompile(fmt.Sprintf("(?%s)%s", flags, expr))
 	}
-	return replacement
-}
-
-// allMatchesReplacement replaces all tokens in format $<digit> (like $1 or $12) with values
-// at corresponding indexes (NOT POSITIONS, so $1 will be replaced with v[1], NOT v[0]) in the provided array.
-// If array doesn't have value at the index (when array length is less than the value), it remains unchanged in the string
-func allMatchesReplacement(pattern string, matches []string) string {
-	var output bytes.Buffer
-	readingToken := false
-	var readToken bytes.Buffer
-	writeTokenValue := func() {
-		if !readingToken {
-			return
-		}
-		if readToken.Len() == 0 {
-			output.WriteRune('$')
-			return
-		}
-		idx, err := strconv.Atoi(readToken.String())
-		// index is out of range when value is too big for int or when it's zero (or less) or greater than array length
-		indexOutOfRange := (err != nil && err.(*strconv.NumError).Err != strconv.ErrRange) || idx <= 0 || idx >= len(matches)
-		if indexOutOfRange {
-			output.WriteRune('$')
-			output.Write(readToken.Bytes())
-			readToken.Reset()
-			return
-		}
-		if err != nil {
-			// should never happen
-			panic(err)
-		}
-		output.WriteString(matches[idx])
-		readToken.Reset()
-	}
-	for _, r := range pattern {
-		if !readingToken && r == '$' {
-			readingToken = true
-			continue
-		}
-		if !readingToken {
-			output.WriteRune(r)
-			continue
-		}
-		if unicode.IsDigit(r) {
-			readToken.WriteRune(r)
-			continue
-		}
-		writeTokenValue()
-		readingToken = (r == '$')
-		if !readingToken {
-			output.WriteRune(r)
-		}
-	}
-	writeTokenValue()
-	return output.String()
 }
