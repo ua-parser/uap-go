@@ -84,7 +84,10 @@ func New(regexFile string) (*Parser, error) {
 	if nil != err {
 		return nil, err
 	}
+	return NewFromBytes(data)
+}
 
+func NewFromBytes(data []byte) (*Parser, error) {
 	var definitions RegexesDefinitions
 	if err := yaml.Unmarshal(data, &definitions); err != nil {
 		return nil, err
