@@ -1,9 +1,5 @@
 package uaparser
 
-import (
-	"regexp"
-)
-
 type Os struct {
 	Family     string
 	Major      string
@@ -12,40 +8,31 @@ type Os struct {
 	PatchMinor string
 }
 
-type OsPattern struct {
-	Regexp          *regexp.Regexp
-	Regex           string
-	OsReplacement   string
-	OsV1Replacement string
-	OsV2Replacement string
-	OsV3Replacement string
-}
-
-func (osPattern *OsPattern) Match(line string, os *Os) {
-	matches := osPattern.Regexp.FindStringSubmatch(line)
+func (parser *osParser) Match(line string, os *Os) {
+	matches := parser.Reg.FindStringSubmatch(line)
 	if len(matches) > 0 {
-		groupCount := osPattern.Regexp.NumSubexp()
+		groupCount := parser.Reg.NumSubexp()
 
-		if len(osPattern.OsReplacement) > 0 {
-			os.Family = singleMatchReplacement(osPattern.OsReplacement, matches, 1)
+		if len(parser.OSReplacement) > 0 {
+			os.Family = singleMatchReplacement(parser.OSReplacement, matches, 1)
 		} else if groupCount >= 1 {
 			os.Family = matches[1]
 		}
 
-		if len(osPattern.OsV1Replacement) > 0 {
-			os.Major = singleMatchReplacement(osPattern.OsV1Replacement, matches, 2)
+		if len(parser.V1Replacement) > 0 {
+			os.Major = singleMatchReplacement(parser.V1Replacement, matches, 2)
 		} else if groupCount >= 2 {
 			os.Major = matches[2]
 		}
 
-		if len(osPattern.OsV2Replacement) > 0 {
-			os.Minor = singleMatchReplacement(osPattern.OsV2Replacement, matches, 3)
+		if len(parser.V2Replacement) > 0 {
+			os.Minor = singleMatchReplacement(parser.V2Replacement, matches, 3)
 		} else if groupCount >= 3 {
 			os.Minor = matches[3]
 		}
 
-		if len(osPattern.OsV3Replacement) > 0 {
-			os.Patch = singleMatchReplacement(osPattern.OsV3Replacement, matches, 4)
+		if len(parser.V3Replacement) > 0 {
+			os.Patch = singleMatchReplacement(parser.V3Replacement, matches, 4)
 		} else if groupCount >= 4 {
 			os.Patch = matches[4]
 		}

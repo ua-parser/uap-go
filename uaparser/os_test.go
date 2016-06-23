@@ -6,11 +6,11 @@ import (
 )
 
 var osDefaultRegexFile string = uapCoreRoot + "/regexes.yaml"
-var osParser *Parser = nil
+var osTestParser *Parser = nil
 
 func osInitParser(regexFile string) {
-	if osParser == nil {
-		osParser, _ = New(regexFile)
+	if osTestParser == nil {
+		osTestParser, _ = New(regexFile)
 	}
 }
 
