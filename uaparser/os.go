@@ -5,7 +5,7 @@ type Os struct {
 	Major      string
 	Minor      string
 	Patch      string
-	PatchMinor string
+	PatchMinor string `yaml:"patch_minor"`
 }
 
 func (parser *osParser) Match(line string, os *Os) {
