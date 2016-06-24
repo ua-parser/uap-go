@@ -13,6 +13,13 @@ This is the Go implementation of the [ua-parser](https://github.com/tobie/ua-par
     $ cd uaparser
     $ go test -v -cover
 
+When adding new feature you can check for data race with `go test -race`, although this command
+will take more than 2 minutes to execute since the `-race` flag adds some instrumentation on all regex matches
+
+So a quicker way to test data race on the main `*parser.Parse` method can be:
+
+    $ go test -race -run=Concurrency  # filter to execute `TestGenericParseMethodConcurrency` only
+
 ## Benching
 
 If needed, you can run benchmark on your latest feature to be compared (using `benchcmp`) against the current performance
