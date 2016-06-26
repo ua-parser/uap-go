@@ -11,7 +11,7 @@ This is the Go implementation of the [ua-parser](https://github.com/tobie/ua-par
 ## Testing
 
     $ cd uaparser
-    $ go test  # (Includes all the tests in `test_resources`)
+    $ go test -v -cover
 
 ## Benching
 
@@ -39,7 +39,7 @@ import (
 func main() {
   uagent := "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-80) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true"
 
-  parser, err := uaparser.New(./regexes.yaml)
+  parser, err := uaparser.New("./regexes.yaml")
   if err != nil {
     log.Fatal(err)
   }
