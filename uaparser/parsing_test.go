@@ -82,6 +82,27 @@ func TestDeviceParsing(t *testing.T) {
 	}
 }
 
+func TestGenericParseMethodConcurrency(t *testing.T) { // go test -race -run=Concurrency
+	var YAMLTestCases struct {
+		Cases []struct {
+			Input    string `yaml:"user_agent_string"`
+			Expected Os     `yaml:",inline"`
+		} `yaml:"test_cases"`
+	}
+
+	for _, filepath := range []string{"../uap-core/tests/test_os.yaml"} {
+		unmarshalResourceTestFile(filepath, &YAMLTestCases)
+
+		for _, c := range YAMLTestCases.Cases {
+			actual := testParser.Parse(c.Input).Os
+			if got, want := *actual, c.Expected; got != want {
+				t.Fatalf("got %#v\n want %#v\n", got, want)
+			}
+		}
+	}
+}
+
+
 func unmarshalResourceTestFile(filepath string, v interface{}) {
 	file, err := ioutil.ReadFile(filepath)
 	if nil != err {

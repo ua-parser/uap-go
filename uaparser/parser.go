@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"sync"
 
 	"gopkg.in/yaml.v2"
 )
@@ -133,9 +134,29 @@ func NewFromBytes(data []byte) (*Parser, error) {
 
 func (parser *Parser) Parse(line string) *Client {
 	cli := new(Client)
-	cli.UserAgent = parser.ParseUserAgent(line)
-	cli.Os = parser.ParseOs(line)
-	cli.Device = parser.ParseDevice(line)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cli.UserAgent = parser.ParseUserAgent(line)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cli.Os = parser.ParseOs(line)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cli.Device = parser.ParseDevice(line)
+	}()
+
+	wg.Wait()
+
 	return cli
 }
 
