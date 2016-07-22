@@ -1,7 +1,0 @@
-To include third-party libraries, we use the quick-and-dirty approach from
-http://blogs.atlassian.com/2013/05/alternatives-to-git-submodule-git-subtree/ 
-
-Here's what we've got so far:
-
-  git subtree add --prefix uap-core https://github.com/ua-parser/uap-core.git master --squash
-

@@ -8,6 +8,10 @@ This is the Go implementation of the [ua-parser](https://github.com/tobie/ua-par
 
     $ go get github.com/ua-parser/uap-go/uaparser
 
+## Updating
+
+  `uap-core` definitions are, by default, compiled and included in the Go portion of this package. To regenerate these definitions you can run the `build.sh` script.
+
 ## Testing
 
     $ cd uaparser
