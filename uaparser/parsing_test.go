@@ -38,6 +38,10 @@ func TestOSParsing(t *testing.T) {
 	}
 }
 
+func TestReadsInteralYAML(t *testing.T) {
+	_ = NewFromSaved() // should not panic
+}
+
 func TestUAParsing(t *testing.T) {
 	t.Parallel()
 
@@ -101,7 +105,6 @@ func TestGenericParseMethodConcurrency(t *testing.T) { // go test -race -run=Con
 		}
 	}
 }
-
 
 func unmarshalResourceTestFile(filepath string, v interface{}) {
 	file, err := ioutil.ReadFile(filepath)
