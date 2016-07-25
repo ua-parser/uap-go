@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 	"sync"
-	netUtil "github.com/streamrail/common/util/net"
 )
 
 func main() {
@@ -72,26 +71,18 @@ func runTest(uaParser *uaparser.Parser, id int, wg *sync.WaitGroup) {
 		delim += "\t"
 	}
 	totalLines := countLines()
-	platforms := map[string]int{"mobile": 0, "desktop": 0}
 	var totalTime time.Duration
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		str := scanner.Text()
+		_ = uaParser.Parse(str)
 		line++
-//		if line == 5000 {
-//			break
-//		}
 		start := time.Now()
-		if netUtil.IsMobileUA(str, uaParser.Parse(str)) {
-			platforms["mobile"]++
-		} else {
-			platforms["desktop"]++
-		}
 		elapsed := time.Since(start)
 		totalTime += elapsed
 		fmt.Printf("\r\t\t\t\t%s%.2f%% completed|", delim, float64(line * 100)/float64(totalLines))
 	}
-	fmt.Printf("\nProcessed lines: %d. Test took %s\nResult: %+v\n", line, totalTime, platforms)
+	fmt.Printf("\nProcessed lines: %d. Test took %s\n", line, totalTime)
 	wg.Done()
 }
 
@@ -102,9 +93,6 @@ func countLines() (int) {
 	lineCount := 0
 	for fileScanner.Scan() {
 		lineCount++
-//		if lineCount == 5000 {
-//			break
-//		}
 	}
 	return lineCount
 }
