@@ -6,10 +6,15 @@ import (
 )
 
 var benchedParser *Parser
+var benchedParserWithOptions *Parser
 
 func init() {
 	var err error
 	benchedParser, err = New("../uap-core/regexes.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	benchedParserWithOptions, err = NewWithOptions("../uap-core/regexes.yaml", (EOsLookUpMode | EUserAgentLookUpMode), 100, 20, true, true)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,6 +24,14 @@ func BenchmarkParser(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, ua := range uas {
 			benchedParser.Parse(ua)
+		}
+	}
+}
+
+func BenchmarkParserWithOptions(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, ua := range uas {
+			benchedParserWithOptions.Parse(ua)
 		}
 	}
 }
