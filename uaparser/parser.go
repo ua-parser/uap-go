@@ -20,9 +20,16 @@ type RegexesDefinitions struct {
 }
 
 type UserAgentSorter []*uaParser
-func (a UserAgentSorter) Len() int           { return len(a) }
-func (a UserAgentSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a UserAgentSorter) Less(i, j int) bool { return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount) }
+
+func (a UserAgentSorter) Len() int {
+	return len(a)
+}
+func (a UserAgentSorter) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+func (a UserAgentSorter) Less(i, j int) bool {
+	return atomic.LoadUint32(&a[i].MatchesCount) > atomic.LoadUint32(&a[j].MatchesCount)
+}
 
 type uaParser struct {
 	Reg               *regexp.Regexp
@@ -32,7 +39,7 @@ type uaParser struct {
 	V1Replacement     string `yaml:"v1_replacement"`
 	V2Replacement     string `yaml:"v2_replacement"`
 	V3Replacement     string `yaml:"v3_replacement"`
-	MatchesCount      uint64
+	MatchesCount      uint32
 }
 
 func (ua *uaParser) setDefaults() {
@@ -51,9 +58,16 @@ func (ua *uaParser) setDefaults() {
 }
 
 type OsSorter []*osParser
-func (a OsSorter) Len() int           { return len(a) }
-func (a OsSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a OsSorter) Less(i, j int) bool { return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount) }
+
+func (a OsSorter) Len() int {
+	return len(a)
+}
+func (a OsSorter) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+func (a OsSorter) Less(i, j int) bool {
+	return atomic.LoadUint32(&a[i].MatchesCount) > atomic.LoadUint32(&a[j].MatchesCount)
+}
 
 type osParser struct {
 	Reg           *regexp.Regexp
@@ -64,7 +78,7 @@ type osParser struct {
 	V2Replacement string `yaml:"os_v2_replacement"`
 	V3Replacement string `yaml:"os_v3_replacement"`
 	V4Replacement string `yaml:"os_v4_replacement"`
-	MatchesCount  uint64
+	MatchesCount  uint32
 }
 
 func (os *osParser) setDefaults() {
@@ -86,9 +100,16 @@ func (os *osParser) setDefaults() {
 }
 
 type DeviceSorter []*deviceParser
-func (a DeviceSorter) Len() int           { return len(a) }
-func (a DeviceSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a DeviceSorter) Less(i, j int) bool { return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount) }
+
+func (a DeviceSorter) Len() int {
+	return len(a)
+}
+func (a DeviceSorter) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+func (a DeviceSorter) Less(i, j int) bool {
+	return atomic.LoadUint32(&a[i].MatchesCount) > atomic.LoadUint32(&a[j].MatchesCount)
+}
 
 type deviceParser struct {
 	Reg               *regexp.Regexp
@@ -97,7 +118,7 @@ type deviceParser struct {
 	DeviceReplacement string `yaml:"device_replacement"`
 	BrandReplacement  string `yaml:"brand_replacement"`
 	ModelReplacement  string `yaml:"model_replacement"`
-	MatchesCount      uint64
+	MatchesCount      uint32
 }
 
 func (device *deviceParser) setDefaults() {
@@ -117,31 +138,31 @@ type Client struct {
 
 type Parser struct {
 	RegexesDefinitions
-	UserAgentMisses   uint64
-	OsMisses          uint64
-	DeviceMisses      uint64
-	Mode              int
-	UseSort           bool
-	debugMode         bool
+	UserAgentMisses uint32
+	OsMisses        uint32
+	DeviceMisses    uint32
+	Mode            int
+	UseSort         bool
+	debugMode       bool
 }
 
-
 const (
-	EOsLookUpMode		= 1	/* 00000001 */
-	EUserAgentLookUpMode	= 2	/* 00000010 */
-	EDeviceLookUpMode	= 4	/* 00000100 */
-	cMinMissesTreshold	= 100000
-	cDefaultMissesTreshold	= 500000
-	cDefaultMatchIdxNotOk	= 20
-	cDefaultSortOption	= false
+	EOsLookUpMode = 1        /* 00000001 */
+	EUserAgentLookUpMode = 2        /* 00000010 */
+	EDeviceLookUpMode = 4        /* 00000100 */
+	cMinMissesTreshold = 100000
+	cDefaultMissesTreshold = 500000
+	cDefaultMatchIdxNotOk = 20
+	cDefaultSortOption = false
 )
 
 var (
-	missesTreshold		= uint64(500000)
-	matchIdxNotOk		= 20
+	missesTreshold = uint32(500000)
+	matchIdxNotOk = 20
 )
 
-func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
+func (parser *Parser) mustCompile() {
+	// until we can use yaml.UnmarshalYAML with embedded pointer struct
 	for _, p := range parser.UA {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
@@ -165,7 +186,7 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 		matchIdxNotOk = topCnt
 	}
 	if treshold > cMinMissesTreshold {
-		missesTreshold = uint64(treshold)
+		missesTreshold = uint32(treshold)
 	}
 	parser, err := NewFromBytes(data)
 	if err != nil {
@@ -207,7 +228,7 @@ func NewFromBytes(data []byte) (*Parser, error) {
 		return nil, err
 	}
 
-	parser := &Parser{definitions, 0, 0, 0, (EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode), false, false}
+	parser := &Parser{definitions, 0, 0, 0, (EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode), false, false}
 	parser.mustCompile()
 
 	return parser, nil
@@ -259,15 +280,15 @@ func (parser *Parser) ParseUserAgent(line string) *UserAgent {
 		if len(ua.Family) > 0 {
 			found = true
 			foundIdx = i
-			atomic.AddUint64(&uaPattern.MatchesCount, 1)
+			atomic.AddUint32(&uaPattern.MatchesCount, 1)
 			break
 		}
 	}
 	if !found {
 		ua.Family = "Other"
 	}
-	if(foundIdx > matchIdxNotOk) {
-		atomic.AddUint64(&parser.UserAgentMisses, 1)
+	if (foundIdx > matchIdxNotOk) {
+		atomic.AddUint32(&parser.UserAgentMisses, 1)
 	}
 	return ua
 }
@@ -281,15 +302,15 @@ func (parser *Parser) ParseOs(line string) *Os {
 		if len(os.Family) > 0 {
 			found = true
 			foundIdx = i
-			atomic.AddUint64(&osPattern.MatchesCount, 1)
+			atomic.AddUint32(&osPattern.MatchesCount, 1)
 			break
 		}
 	}
 	if !found {
 		os.Family = "Other"
 	}
-	if(foundIdx > matchIdxNotOk) {
-		atomic.AddUint64(&parser.OsMisses, 1)
+	if (foundIdx > matchIdxNotOk) {
+		atomic.AddUint32(&parser.OsMisses, 1)
 	}
 	return os
 }
@@ -303,22 +324,22 @@ func (parser *Parser) ParseDevice(line string) *Device {
 		if len(dvc.Family) > 0 {
 			found = true
 			foundIdx = i
-			atomic.AddUint64(&dvcPattern.MatchesCount, 1)
+			atomic.AddUint32(&dvcPattern.MatchesCount, 1)
 			break
 		}
 	}
 	if !found {
 		dvc.Family = "Other"
 	}
-	if(foundIdx > matchIdxNotOk) {
-		atomic.AddUint64(&parser.DeviceMisses, 1)
+	if (foundIdx > matchIdxNotOk) {
+		atomic.AddUint32(&parser.DeviceMisses, 1)
 	}
 	return dvc
 }
 
 func checkAndSort(parser *Parser) {
 	parser.Lock()
-	if(atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold) {
+	if (atomic.LoadUint32(&parser.UserAgentMisses) >= missesTreshold) {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now());
 		}
@@ -327,7 +348,7 @@ func checkAndSort(parser *Parser) {
 	}
 	parser.Unlock()
 	parser.Lock()
-	if(atomic.LoadUint64(&parser.OsMisses) >= missesTreshold) {
+	if (atomic.LoadUint32(&parser.OsMisses) >= missesTreshold) {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now());
 		}
@@ -336,7 +357,7 @@ func checkAndSort(parser *Parser) {
 	}
 	parser.Unlock()
 	parser.Lock()
-	if(atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold) {
+	if (atomic.LoadUint32(&parser.DeviceMisses) >= missesTreshold) {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now());
 		}
