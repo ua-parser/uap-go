@@ -6,8 +6,8 @@ import (
 	"github.com/streamrail/uap-go/uaparser"
 	"os"
 	"strconv"
-	"time"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -17,46 +17,45 @@ func main() {
 	}
 	var wg sync.WaitGroup
 	cLevel, _ := strconv.Atoi(os.Args[2])
-	switch (os.Args[1]) {
-		case "new":
-			fmt.Printf("Running new version of uap...")
-			uaParser, _ := uaparser.NewWithOptions("/etc/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true)
-			for i := 0; i < cLevel; i++ {
-				wg.Add(1)
-				go runTest(uaParser, i, &wg)
-			}
-			wg.Wait()
-			return
-		case "old":
-			fmt.Printf("Running old version of uap...")
-			uaParser, _ := uaparser.New("/etc/regexes.yaml")
-			for i := 0; i < cLevel; i++ {
-				wg.Add(1)
-				go runTest(uaParser, i, &wg)
-			}
-			wg.Wait()
-			return
-		case "both":
-			fmt.Printf("Running new version of uap...")
-			uaParser, _ := uaparser.NewWithOptions("/etc/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true)
-			for i := 0; i < cLevel; i++ {
-				wg.Add(1)
-				runTest(uaParser, i, &wg)
-			}
-			fmt.Printf("Running old version of uap...")
-			uaParser, _ = uaparser.New("/etc/regexes.yaml")
-			for i := 0; i < cLevel; i++ {
-				wg.Add(1)
-				runTest(uaParser, i, &wg)
-			}
-			wg.Wait()
-			return
-		default:
-			fmt.Printf("Usage: %s [old|new|both]\n", os.Args[0])
-			return
+	switch os.Args[1] {
+	case "new":
+		fmt.Printf("Running new version of uap...")
+		uaParser, _ := uaparser.NewWithOptions("/etc/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true)
+		for i := 0; i < cLevel; i++ {
+			wg.Add(1)
+			go runTest(uaParser, i, &wg)
+		}
+		wg.Wait()
+		return
+	case "old":
+		fmt.Printf("Running old version of uap...")
+		uaParser, _ := uaparser.New("/etc/regexes.yaml")
+		for i := 0; i < cLevel; i++ {
+			wg.Add(1)
+			go runTest(uaParser, i, &wg)
+		}
+		wg.Wait()
+		return
+	case "both":
+		fmt.Printf("Running new version of uap...")
+		uaParser, _ := uaparser.NewWithOptions("/etc/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true)
+		for i := 0; i < cLevel; i++ {
+			wg.Add(1)
+			runTest(uaParser, i, &wg)
+		}
+		fmt.Printf("Running old version of uap...")
+		uaParser, _ = uaparser.New("/etc/regexes.yaml")
+		for i := 0; i < cLevel; i++ {
+			wg.Add(1)
+			runTest(uaParser, i, &wg)
+		}
+		wg.Wait()
+		return
+	default:
+		fmt.Printf("Usage: %s [old|new|both]\n", os.Args[0])
+		return
 	}
 }
-
 
 func runTest(uaParser *uaparser.Parser, id int, wg *sync.WaitGroup) {
 	file, err := os.Open("./uas")
@@ -67,7 +66,7 @@ func runTest(uaParser *uaparser.Parser, id int, wg *sync.WaitGroup) {
 	defer file.Close()
 	line := 0
 	delim := ""
-	for i:= 0; i < id * 2; i++ {
+	for i := 0; i < id*2; i++ {
 		delim += "\t"
 	}
 	totalLines := countLines()
@@ -80,13 +79,13 @@ func runTest(uaParser *uaparser.Parser, id int, wg *sync.WaitGroup) {
 		start := time.Now()
 		elapsed := time.Since(start)
 		totalTime += elapsed
-		fmt.Printf("\r\t\t\t\t%s%.2f%% completed|", delim, float64(line * 100)/float64(totalLines))
+		fmt.Printf("\r\t\t\t\t%s%.2f%% completed|", delim, float64(line*100)/float64(totalLines))
 	}
 	fmt.Printf("\nProcessed lines: %d. Test took %s\n", line, totalTime)
 	wg.Done()
 }
 
-func countLines() (int) {
+func countLines() int {
 	file, _ := os.Open("./uas")
 	fileScanner := bufio.NewScanner(file)
 	defer file.Close()
