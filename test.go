@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/streamrail/uap-go/uaparser"
+	"github.com/ua-parser/uap-go/uaparser"
 	"os"
 	"strconv"
 	"sync"
@@ -12,7 +12,7 @@ import (
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Println("Usage: %s [old|new|both] [concurrency level]\n", os.Args[0])
+		fmt.Printf("Usage: %s [old|new|both] [concurrency level]\n", os.Args[0])
 		return
 	}
 	var wg sync.WaitGroup
