@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/streamrail/uap-go/uaparser"
+	"github.com/ua-parser/uap-go/uaparser"
 	"os"
 	"strconv"
 	"sync"
