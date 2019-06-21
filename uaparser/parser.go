@@ -16,7 +16,6 @@ type RegexesDefinitions struct {
 	UA     []*uaParser     `yaml:"user_agent_parsers"`
 	OS     []*osParser     `yaml:"os_parsers"`
 	Device []*deviceParser `yaml:"device_parsers"`
-	sync.RWMutex
 }
 
 type UserAgentSorter []*uaParser
@@ -123,6 +122,7 @@ type Parser struct {
 	Mode              int
 	UseSort           bool
 	debugMode         bool
+	lock              *sync.RWMutex
 }
 
 
@@ -207,7 +207,7 @@ func NewFromBytes(data []byte) (*Parser, error) {
 		return nil, err
 	}
 
-	parser := &Parser{definitions, 0, 0, 0, (EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode), false, false}
+	parser := &Parser{definitions, 0, 0, 0, (EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode), false, false, new(sync.RWMutex)}
 	parser.mustCompile()
 
 	return parser, nil
@@ -220,27 +220,27 @@ func (parser *Parser) Parse(line string) *Client {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.RLock()
+			parser.lock.RLock()
 			cli.UserAgent = parser.ParseUserAgent(line)
-			parser.RUnlock()
+			parser.lock.RUnlock()
 		}()
 	}
 	if EOsLookUpMode & parser.Mode == EOsLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.RLock()
+			parser.lock.RLock()
 			cli.Os = parser.ParseOs(line)
-			parser.RUnlock()
+			parser.lock.RUnlock()
 		}()
 	}
 	if EDeviceLookUpMode & parser.Mode == EDeviceLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.RLock()
+			parser.lock.RLock()
 			cli.Device = parser.ParseDevice(line)
-			parser.RUnlock()
+			parser.lock.RUnlock()
 		}()
 	}
 	wg.Wait()
@@ -317,7 +317,7 @@ func (parser *Parser) ParseDevice(line string) *Device {
 }
 
 func checkAndSort(parser *Parser) {
-	parser.Lock()
+	parser.lock.Lock()
 	if(atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold) {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now());
@@ -325,8 +325,8 @@ func checkAndSort(parser *Parser) {
 		parser.UserAgentMisses = 0
 		sort.Sort(UserAgentSorter(parser.UA));
 	}
-	parser.Unlock()
-	parser.Lock()
+	parser.lock.Unlock()
+	parser.lock.Lock()
 	if(atomic.LoadUint64(&parser.OsMisses) >= missesTreshold) {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now());
@@ -334,8 +334,8 @@ func checkAndSort(parser *Parser) {
 		parser.OsMisses = 0
 		sort.Sort(OsSorter(parser.OS));
 	}
-	parser.Unlock()
-	parser.Lock()
+	parser.lock.Unlock()
+	parser.lock.Lock()
 	if(atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold) {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now());
@@ -343,7 +343,7 @@ func checkAndSort(parser *Parser) {
 		parser.DeviceMisses = 0
 		sort.Sort(DeviceSorter(parser.Device));
 	}
-	parser.Unlock()
+	parser.lock.Unlock()
 }
 
 func compileRegex(flags, expr string) *regexp.Regexp {
