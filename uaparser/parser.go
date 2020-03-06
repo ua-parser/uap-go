@@ -214,12 +214,13 @@ func NewFromSaved() *Parser {
 }
 
 func NewFromBytes(data []byte) (*Parser, error) {
-	var definitions RegexesDefinitions
-	if err := yaml.Unmarshal(data, &definitions); err != nil {
+	parser := &Parser{
+		Mode: EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
+	}
+	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
 		return nil, err
 	}
 
-	parser := &Parser{definitions, 0, 0, 0, (EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode), false, false}
 	parser.mustCompile()
 
 	return parser, nil
