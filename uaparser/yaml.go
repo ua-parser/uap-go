@@ -1,6 +1,6 @@
 package uaparser
 
-var definitionYaml = []byte(`user_agent_parsers:
+var DefinitionYaml = []byte(`user_agent_parsers:
   - regex: '(ESPN)[%20| ]+Radio/(\d+)\.(\d+)\.(\d+) CFNetwork'
   - regex: '(Antenna)/(\d+) CFNetwork'
     family_replacement: 'AntennaPod'
