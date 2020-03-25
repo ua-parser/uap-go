@@ -7,4 +7,4 @@ yaml=`cat uap-core/regexes.yaml | sed '/\s*#/d' | sed '/^\s*$/d'`
 
 # Build and format a Go file including our sources:
 echo "package uaparser
-var definitionYaml = []byte(\`$yaml\`)" | gofmt > uaparser/yaml.go
+var DefinitionYaml = []byte(\`$yaml\`)" | gofmt > uaparser/yaml.go

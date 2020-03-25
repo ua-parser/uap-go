@@ -197,7 +197,7 @@ func New(regexFile string) (*Parser, error) {
 }
 
 func NewFromSaved() *Parser {
-	parser, err := NewFromBytes(definitionYaml)
+	parser, err := NewFromBytes(DefinitionYaml)
 	if err != nil {
 		// if the YAML is malformed, it's a programmatic error inside what
 		// we've statically-compiled in our binary. Panic!
