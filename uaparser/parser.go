@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"sort"
 	"sync"
 	"sync/atomic"
-	"sort"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -16,25 +16,27 @@ type RegexesDefinitions struct {
 	UA     []*uaParser     `yaml:"user_agent_parsers"`
 	OS     []*osParser     `yaml:"os_parsers"`
 	Device []*deviceParser `yaml:"device_parsers"`
-	_        [4]byte  // padding for alignment
+	_      [4]byte         // padding for alignment
 	sync.RWMutex
-
 }
 
 type UserAgentSorter []*uaParser
-func (a UserAgentSorter) Len() int           { return len(a) }
-func (a UserAgentSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a UserAgentSorter) Less(i, j int) bool { return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount) }
+
+func (a UserAgentSorter) Len() int      { return len(a) }
+func (a UserAgentSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a UserAgentSorter) Less(i, j int) bool {
+	return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount)
+}
 
 type uaParser struct {
 	Reg               *regexp.Regexp
-	Expr              string `yaml:"regex"`
-	Flags             string `yaml:"regex_flag"`
-	FamilyReplacement string `yaml:"family_replacement"`
-	V1Replacement     string `yaml:"v1_replacement"`
-	V2Replacement     string `yaml:"v2_replacement"`
-	V3Replacement     string `yaml:"v3_replacement"`
-	_        [4]byte  // padding for alignment
+	Expr              string  `yaml:"regex"`
+	Flags             string  `yaml:"regex_flag"`
+	FamilyReplacement string  `yaml:"family_replacement"`
+	V1Replacement     string  `yaml:"v1_replacement"`
+	V2Replacement     string  `yaml:"v2_replacement"`
+	V3Replacement     string  `yaml:"v3_replacement"`
+	_                 [4]byte // padding for alignment
 	MatchesCount      uint64
 }
 
@@ -54,20 +56,23 @@ func (ua *uaParser) setDefaults() {
 }
 
 type OsSorter []*osParser
-func (a OsSorter) Len() int           { return len(a) }
-func (a OsSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a OsSorter) Less(i, j int) bool { return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount) }
+
+func (a OsSorter) Len() int      { return len(a) }
+func (a OsSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a OsSorter) Less(i, j int) bool {
+	return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount)
+}
 
 type osParser struct {
 	Reg           *regexp.Regexp
-	Expr          string `yaml:"regex"`
-	Flags         string `yaml:"regex_flag"`
-	OSReplacement string `yaml:"os_replacement"`
-	V1Replacement string `yaml:"os_v1_replacement"`
-	V2Replacement string `yaml:"os_v2_replacement"`
-	V3Replacement string `yaml:"os_v3_replacement"`
-	V4Replacement string `yaml:"os_v4_replacement"`
-	_        [4]byte  // padding for alignment
+	Expr          string  `yaml:"regex"`
+	Flags         string  `yaml:"regex_flag"`
+	OSReplacement string  `yaml:"os_replacement"`
+	V1Replacement string  `yaml:"os_v1_replacement"`
+	V2Replacement string  `yaml:"os_v2_replacement"`
+	V3Replacement string  `yaml:"os_v3_replacement"`
+	V4Replacement string  `yaml:"os_v4_replacement"`
+	_             [4]byte // padding for alignment
 	MatchesCount  uint64
 }
 
@@ -90,18 +95,21 @@ func (os *osParser) setDefaults() {
 }
 
 type DeviceSorter []*deviceParser
-func (a DeviceSorter) Len() int           { return len(a) }
-func (a DeviceSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a DeviceSorter) Less(i, j int) bool { return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount) }
+
+func (a DeviceSorter) Len() int      { return len(a) }
+func (a DeviceSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DeviceSorter) Less(i, j int) bool {
+	return atomic.LoadUint64(&a[i].MatchesCount) > atomic.LoadUint64(&a[j].MatchesCount)
+}
 
 type deviceParser struct {
 	Reg               *regexp.Regexp
-	Expr              string `yaml:"regex"`
-	Flags             string `yaml:"regex_flag"`
-	DeviceReplacement string `yaml:"device_replacement"`
-	BrandReplacement  string `yaml:"brand_replacement"`
-	ModelReplacement  string `yaml:"model_replacement"`
-	_        [4]byte  // padding for alignment
+	Expr              string  `yaml:"regex"`
+	Flags             string  `yaml:"regex_flag"`
+	DeviceReplacement string  `yaml:"device_replacement"`
+	BrandReplacement  string  `yaml:"brand_replacement"`
+	ModelReplacement  string  `yaml:"model_replacement"`
+	_                 [4]byte // padding for alignment
 	MatchesCount      uint64
 }
 
@@ -122,28 +130,27 @@ type Client struct {
 
 type Parser struct {
 	RegexesDefinitions
-	UserAgentMisses   uint64
-	OsMisses          uint64
-	DeviceMisses      uint64
-	Mode              int
-	UseSort           bool
-	debugMode         bool
+	UserAgentMisses uint64
+	OsMisses        uint64
+	DeviceMisses    uint64
+	Mode            int
+	UseSort         bool
+	debugMode       bool
 }
 
-
 const (
-	EOsLookUpMode		= 1	/* 00000001 */
-	EUserAgentLookUpMode	= 2	/* 00000010 */
-	EDeviceLookUpMode	= 4	/* 00000100 */
-	cMinMissesTreshold	= 100000
-	cDefaultMissesTreshold	= 500000
-	cDefaultMatchIdxNotOk	= 20
-	cDefaultSortOption	= false
+	EOsLookUpMode          = 1 /* 00000001 */
+	EUserAgentLookUpMode   = 2 /* 00000010 */
+	EDeviceLookUpMode      = 4 /* 00000100 */
+	cMinMissesTreshold     = 100000
+	cDefaultMissesTreshold = 500000
+	cDefaultMatchIdxNotOk  = 20
+	cDefaultSortOption     = false
 )
 
 var (
-	missesTreshold		= uint64(500000)
-	matchIdxNotOk		= 20
+	missesTreshold = uint64(500000)
+	matchIdxNotOk  = 20
 )
 
 func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
@@ -207,12 +214,13 @@ func NewFromSaved() *Parser {
 }
 
 func NewFromBytes(data []byte) (*Parser, error) {
-	var definitions RegexesDefinitions
-	if err := yaml.Unmarshal(data, &definitions); err != nil {
+	parser := &Parser{
+		Mode: EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
+	}
+	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
 		return nil, err
 	}
 
-	parser := &Parser{definitions, 0, 0, 0, (EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode), false, false}
 	parser.mustCompile()
 
 	return parser, nil
@@ -221,7 +229,7 @@ func NewFromBytes(data []byte) (*Parser, error) {
 func (parser *Parser) Parse(line string) *Client {
 	cli := new(Client)
 	var wg sync.WaitGroup
-	if EUserAgentLookUpMode & parser.Mode == EUserAgentLookUpMode {
+	if EUserAgentLookUpMode&parser.Mode == EUserAgentLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -230,7 +238,7 @@ func (parser *Parser) Parse(line string) *Client {
 			parser.RUnlock()
 		}()
 	}
-	if EOsLookUpMode & parser.Mode == EOsLookUpMode {
+	if EOsLookUpMode&parser.Mode == EOsLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -239,7 +247,7 @@ func (parser *Parser) Parse(line string) *Client {
 			parser.RUnlock()
 		}()
 	}
-	if EDeviceLookUpMode & parser.Mode == EDeviceLookUpMode {
+	if EDeviceLookUpMode&parser.Mode == EDeviceLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -271,7 +279,7 @@ func (parser *Parser) ParseUserAgent(line string) *UserAgent {
 	if !found {
 		ua.Family = "Other"
 	}
-	if(foundIdx > matchIdxNotOk) {
+	if foundIdx > matchIdxNotOk {
 		atomic.AddUint64(&parser.UserAgentMisses, 1)
 	}
 	return ua
@@ -293,7 +301,7 @@ func (parser *Parser) ParseOs(line string) *Os {
 	if !found {
 		os.Family = "Other"
 	}
-	if(foundIdx > matchIdxNotOk) {
+	if foundIdx > matchIdxNotOk {
 		atomic.AddUint64(&parser.OsMisses, 1)
 	}
 	return os
@@ -315,7 +323,7 @@ func (parser *Parser) ParseDevice(line string) *Device {
 	if !found {
 		dvc.Family = "Other"
 	}
-	if(foundIdx > matchIdxNotOk) {
+	if foundIdx > matchIdxNotOk {
 		atomic.AddUint64(&parser.DeviceMisses, 1)
 	}
 	return dvc
@@ -323,30 +331,30 @@ func (parser *Parser) ParseDevice(line string) *Device {
 
 func checkAndSort(parser *Parser) {
 	parser.Lock()
-	if(atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold) {
+	if atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold {
 		if parser.debugMode {
-			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now());
+			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
 		parser.UserAgentMisses = 0
-		sort.Sort(UserAgentSorter(parser.UA));
+		sort.Sort(UserAgentSorter(parser.UA))
 	}
 	parser.Unlock()
 	parser.Lock()
-	if(atomic.LoadUint64(&parser.OsMisses) >= missesTreshold) {
+	if atomic.LoadUint64(&parser.OsMisses) >= missesTreshold {
 		if parser.debugMode {
-			fmt.Printf("%s\tSorting OS slice\n", time.Now());
+			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
 		parser.OsMisses = 0
-		sort.Sort(OsSorter(parser.OS));
+		sort.Sort(OsSorter(parser.OS))
 	}
 	parser.Unlock()
 	parser.Lock()
-	if(atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold) {
+	if atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold {
 		if parser.debugMode {
-			fmt.Printf("%s\tSorting Device slice\n", time.Now());
+			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
 		parser.DeviceMisses = 0
-		sort.Sort(DeviceSorter(parser.Device));
+		sort.Sort(DeviceSorter(parser.Device))
 	}
 	parser.Unlock()
 }

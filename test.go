@@ -52,7 +52,7 @@ func main() {
 		wg.Wait()
 		return
 	default:
-		fmt.Sprintf("Usage: %s [old|new|both]\n", os.Args[0])
+		fmt.Printf("Usage: %s [old|new|both]\n", os.Args[0])
 		return
 	}
 }
