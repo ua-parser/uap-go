@@ -35,6 +35,18 @@ If needed, you can run benchmark on your latest feature to be compared (using `b
     $ go test -bench=.  -run=none > ~/new.benchmark
     $ benchcmp ~/old.benchmark ~/new.benchmark
 
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/ua-parser/uap-go/uaparser
+    cpu: Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz
+    BenchmarkParser
+    BenchmarkParser-12               	     152	   8019812 ns/op   -- 全解析
+    BenchmarkParserWithOptions
+    BenchmarkParserWithOptions-12    	     202	   5699530 ns/op   -- 不解析设备
+    BenchmarkParserFp
+    BenchmarkParserFp-12             	  370011	      3104 ns/op   -- 通过指纹解析
+    PASS
+
 # Example
 
 ```go
@@ -44,7 +56,7 @@ import (
   "fmt"
   "log"
 
-  "github.com/ua-parser/uap-go/uaparser"
+  "github.com/Servicewall/uap-go/uaparser"
 )
 
 func main() {
@@ -55,7 +67,7 @@ func main() {
     log.Fatal(err)
   }
 
-  client := parser.Parse(uagent)
+  client := parser.ParseFp(uagent)      // Using Fingerprint to do quick lookup
 
   fmt.Println(client.UserAgent.Family)  // "Amazon Silk"
   fmt.Println(client.UserAgent.Major)   // "1"
@@ -74,5 +86,6 @@ func main() {
 # Authors
 
 * Yihuan Zhou
+* Dongdong Yang
 
 (Based on the Java implementation by Steve Jiang and using agent data from BrowserScope)
