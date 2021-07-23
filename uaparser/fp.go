@@ -1,5 +1,7 @@
 package uaparser
 
+import "fmt"
+
 var fpDict = map[string]*Client{
 	// Windows, Chrome
 	"MozillaWindowsNTWinxAppleWebKitKHTMLlikeGeckoChromeSafari":          {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
@@ -68,6 +70,6 @@ func (parser *Parser) ParseFp(line string) *Client {
 		return v
 	}
 	client := parser.Parse(line)
-	//fmt.Printf("%s: { %s, %s, %s } -> %s\n", fp, client.Os.Family, client.UserAgent.Family, client.Device.Family,  line)
+	fmt.Printf("MISS %s: { %s, %s, %s } -> %s\n", fp, client.Os.Family, client.UserAgent.Family, client.Device.Family, line)
 	return client
 }
