@@ -4,9 +4,13 @@ import "fmt"
 
 var fpDict = map[string]*Client{
 	// Windows, Chrome
+	"MozillaWindowsNTAppleWebKitKHTMLlikeGeckoChromeSafari":              {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTWinxAppleWebKitKHTMLlikeGeckoChromeSafari":          {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoChromeSafari":           {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoChromeTaoBrowserSafari": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
+	// Windows, Firefox
+	"MozillaWindowsNTWinxrvGeckoFirefox":  {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox Beta", "", "", ""}, Device: &Device{"Other", "", ""}},
+	"MozillaWindowsNTWOWrvbGeckoFirefoxb": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox Beta", "", "", ""}, Device: &Device{"Other", "", ""}},
 	// Windows, Edge/IE
 	"MozillaWindowsNTWOWTridentrvlikeGecko":                                               {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillacompatibleMSIEWindowsNTTrident":                                               {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
@@ -15,6 +19,7 @@ var fpDict = map[string]*Client{
 	"MozillacompatibleMSIEWindowsNT":                                                      {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillacompatibleMSIEWindowsNTTencentTraveler":                                       {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTWinxAppleWebKitKHTMLlikeGeckoChromeSafariEdg":                        {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Edge", "", "", ""}, Device: &Device{"Other", "", ""}},
+	"MozillaWindowsNTWinxAppleWebKitKHTMLlikeGeckoChromeSafariEdge":                       {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Edge", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillacompatibleMSIEWindowsNTWOWTridentSLCCNETCLRNETCLRNETCLRMediaCenterPCNETCNETE": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
 	// Windows, Sogou
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoChromeSafariSEXMetaSr": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Sogou Explorer", "", "", ""}, Device: &Device{"Other", "", ""}},
