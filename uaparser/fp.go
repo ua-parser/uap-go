@@ -1,7 +1,5 @@
 package uaparser
 
-import "fmt"
-
 var fpDict = map[string]*Client{
 	// Windows, Chrome
 	"MozillaWindowsNTAppleWebKitKHTMLlikeGeckoChromeSafari":              {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
@@ -25,10 +23,13 @@ var fpDict = map[string]*Client{
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoChromeSafariSEXMetaSr": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Sogou Explorer", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTAppleWebKitKHTMLlikeGeckoChromeSafariSEXMetaSr":    {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Sogou Explorer", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoMaxthonChromeSafari":   {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Maxthon", "", "", ""}, Device: &Device{"Other", "", ""}},
+	"MozillaWindowsNTWOWTridentrvlikeGeckoCoreQQBrowser":                {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"QQ Browser", "", "", ""}, Device: &Device{"Other", "", ""}},
 	// Mac OS X, Chrome
 	"MozillaMacintoshIntelMacOSXAppleWebKitKHTMLlikeGeckoChromeSafari": {Os: &Os{"Mac OS X", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Mac", "", ""}},
 	// Mac OS X, Firefox
 	"MozillaMacintoshIntelMacOSXrvGeckoFirefox": {Os: &Os{"Mac OS X", "", "", "", ""}, UserAgent: &UserAgent{"Firefox", "", "", ""}, Device: &Device{"Mac", "", ""}},
+	// Mac OS X, Safari
+	"MozillaMacintoshIntelMacOSXAppleWebKitKHTMLlikeGeckoVersionSafari": {Os: &Os{"Mac OS X", "", "", "", ""}, UserAgent: &UserAgent{"Safari", "", "", ""}, Device: &Device{"Mac", "", ""}},
 	// Mobile
 	"MozillaLinuxUAndroidzhcnMIBuildPKQAppleWebKitKHTMLlikeGeckoVersionChromeMobileSafariXiaoMiMiuiBrowser":               {Os: &Os{"Android", "", "", "", ""}, UserAgent: &UserAgent{"MiuiBrowser", "", "", ""}, Device: &Device{"XiaoMi MI 6", "", ""}},
 	"MozillaLinuxAndroidNexusBuildMRANAppleWebKitKHTMLlikeGeckoChromeMobileSafari":                                        {Os: &Os{"Android", "", "", "", ""}, UserAgent: &UserAgent{"Chrome Mobile", "", "", ""}, Device: &Device{"Nexus 5", "", ""}},
@@ -75,6 +76,6 @@ func (parser *Parser) ParseFp(line string) *Client {
 		return v
 	}
 	client := parser.Parse(line)
-	fmt.Printf("MISS %s: { %s, %s, %s } -> %s\n", fp, client.Os.Family, client.UserAgent.Family, client.Device.Family, line)
+	//fmt.Printf("MISS %s: { %s, %s, %s } -> %s\n", fp, client.Os.Family, client.UserAgent.Family, client.Device.Family, line)
 	return client
 }

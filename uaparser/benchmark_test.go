@@ -47,7 +47,7 @@ func BenchmarkParserFp(b *testing.B) {
 func TestParserFp(t *testing.T) {
 	for _, ua := range uas {
 		if benchedParser.ParseFp(ua).Os.Family != benchedParser.Parse(ua).Os.Family {
-			t.Errorf("Fp lookup not equal to Regex lookup" )
+			t.Errorf("Fp lookup not equal to Regex lookup")
 		}
 		if benchedParser.ParseFp(ua).UserAgent.Family != benchedParser.Parse(ua).UserAgent.Family {
 			t.Errorf("Fp lookup not equal to Regex lookup")
@@ -59,7 +59,7 @@ func TestParserFp(t *testing.T) {
 
 	for _, ua := range top {
 		if benchedParser.ParseFp(ua).Os.Family != benchedParser.Parse(ua).Os.Family {
-			t.Errorf("Fp lookup not equal to Regex lookup" )
+			t.Errorf("Fp lookup not equal to Regex lookup")
 		}
 		if benchedParser.ParseFp(ua).UserAgent.Family != benchedParser.Parse(ua).UserAgent.Family {
 			t.Errorf("Fp lookup not equal to Regex lookup")
@@ -135,4 +135,6 @@ var top = []string{
 	"Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0",
 	"Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1",
 	"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15",
+	"Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko Core/1.70.3870.400 QQBrowser/10.8.4405.400",
 }
