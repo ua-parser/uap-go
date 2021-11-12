@@ -1,6 +1,6 @@
 # Golang User Agent parser
 
-This is the Go implementation of the [ua-parser](https://github.com/tobie/ua-parser)
+This is the Go implementation of the [ua-parser](https://github.com/ua-parser)
 
 # Usage
 

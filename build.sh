@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-git submodule update
+git submodule update --recursive --remote
 
 # Strip out empty lines and comments for conciseness:
 yaml=`cat uap-core/regexes.yaml | sed '/\s*#/d' | sed '/^\s*$/d'`
