@@ -7,8 +7,9 @@ var fpDict = map[string]*Client{
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoChromeSafari":           {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillaWindowsNTWOWAppleWebKitKHTMLlikeGeckoChromeTaoBrowserSafari": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Chrome", "", "", ""}, Device: &Device{"Other", "", ""}},
 	// Windows, Firefox
-	"MozillaWindowsNTWinxrvGeckoFirefox":  {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox Beta", "", "", ""}, Device: &Device{"Other", "", ""}},
-	"MozillaWindowsNTWOWrvbGeckoFirefoxb": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox Beta", "", "", ""}, Device: &Device{"Other", "", ""}},
+	"MozillaWindowsNTWinxrvGeckoFirefox":         {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox Beta", "", "", ""}, Device: &Device{"Other", "", ""}},
+	"MozillaWindowsNTWOWrvbGeckoFirefoxb":        {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox Beta", "", "", ""}, Device: &Device{"Other", "", ""}},
+	"MozillaWindowsUWindowsNTenUSrvGeckoFirefox": {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"Firefox", "", "", ""}, Device: &Device{"Other", "", ""}},
 	// Windows, Edge/IE
 	"MozillaWindowsNTWOWTridentrvlikeGecko":                                               {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
 	"MozillacompatibleMSIEWindowsNTTrident":                                               {Os: &Os{"Windows", "", "", "", ""}, UserAgent: &UserAgent{"IE", "", "", ""}, Device: &Device{"Other", "", ""}},
