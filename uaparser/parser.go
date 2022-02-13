@@ -129,6 +129,8 @@ type Client struct {
 }
 
 type Parser struct {
+	cache *cache
+
 	RegexesDefinitions
 	UserAgentMisses uint64
 	OsMisses        uint64
@@ -215,7 +217,8 @@ func NewFromSaved() *Parser {
 
 func NewFromBytes(data []byte) (*Parser, error) {
 	parser := &Parser{
-		Mode: EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
+		Mode:  EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
+		cache: newCache(),
 	}
 	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
 		return nil, err
@@ -264,6 +267,10 @@ func (parser *Parser) Parse(line string) *Client {
 }
 
 func (parser *Parser) ParseUserAgent(line string) *UserAgent {
+	cachedUA, ok := parser.cache.userAgent.Get(line)
+	if ok {
+		return cachedUA.(*UserAgent)
+	}
 	ua := new(UserAgent)
 	foundIdx := -1
 	found := false
@@ -282,10 +289,16 @@ func (parser *Parser) ParseUserAgent(line string) *UserAgent {
 	if foundIdx > matchIdxNotOk {
 		atomic.AddUint64(&parser.UserAgentMisses, 1)
 	}
+	parser.cache.userAgent.Add(line, ua)
 	return ua
 }
 
 func (parser *Parser) ParseOs(line string) *Os {
+	cachedOS, ok := parser.cache.os.Get(line)
+	if ok {
+		return cachedOS.(*Os)
+	}
+
 	os := new(Os)
 	foundIdx := -1
 	found := false
@@ -304,10 +317,17 @@ func (parser *Parser) ParseOs(line string) *Os {
 	if foundIdx > matchIdxNotOk {
 		atomic.AddUint64(&parser.OsMisses, 1)
 	}
+
+	parser.cache.os.Add(line, os)
 	return os
 }
 
 func (parser *Parser) ParseDevice(line string) *Device {
+	cachedDevice, ok := parser.cache.device.Get(line)
+	if ok {
+		return cachedDevice.(*Device)
+	}
+
 	dvc := new(Device)
 	foundIdx := -1
 	found := false
@@ -326,6 +346,8 @@ func (parser *Parser) ParseDevice(line string) *Device {
 	if foundIdx > matchIdxNotOk {
 		atomic.AddUint64(&parser.DeviceMisses, 1)
 	}
+
+	parser.cache.device.Add(line, dvc)
 	return dvc
 }
 
