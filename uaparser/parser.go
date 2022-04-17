@@ -2,13 +2,14 @@ package uaparser
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"regexp"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 type RegexesDefinitions struct {
