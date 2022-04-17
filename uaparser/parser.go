@@ -2,14 +2,13 @@ package uaparser
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"regexp"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"gopkg.in/yaml.v2"
 )
 
 type RegexesDefinitions struct {
@@ -130,12 +129,19 @@ type Client struct {
 
 type Parser struct {
 	RegexesDefinitions
-	UserAgentMisses uint64
-	OsMisses        uint64
-	DeviceMisses    uint64
-	Mode            int
-	UseSort         bool
-	debugMode       bool
+	UserAgentMisses  uint64
+	OsMisses         uint64
+	DeviceMisses     uint64
+	DeviceThreshHold uint64
+	OsThreshHold     uint64
+	UserThreshHold   uint64
+	Mode             int
+	UseSort          bool
+	ExpoSort         bool
+	debugMode        bool
+	limitSorts       bool
+	numSorts         uint64
+	maxSorts         uint64
 }
 
 const (
@@ -146,6 +152,7 @@ const (
 	cDefaultMissesTreshold = 500000
 	cDefaultMatchIdxNotOk  = 20
 	cDefaultSortOption     = false
+	cMaxSorts              = 10000
 )
 
 var (
@@ -168,7 +175,7 @@ func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML wit
 	}
 }
 
-func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool) (*Parser, error) {
+func NewWithOptions(regexFile string, mode, treshold, topCnt, maxSorts int, useSort, expoThreashhold, debugMode bool) (*Parser, error) {
 	data, err := ioutil.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
@@ -179,7 +186,13 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 	if treshold > cMinMissesTreshold {
 		missesTreshold = uint64(treshold)
 	}
+
 	parser, err := NewFromBytes(data)
+	if expoThreashhold {
+		parser.DeviceThreshHold, parser.OsThreshHold, parser.UserThreshHold = 100, 100, 100
+		parser.ExpoSort = true
+	}
+	parser.maxSorts = uint64(maxSorts)
 	if err != nil {
 		return nil, err
 	}
@@ -257,7 +270,7 @@ func (parser *Parser) Parse(line string) *Client {
 		}()
 	}
 	wg.Wait()
-	if parser.UseSort == true {
+	if parser.UseSort == true && parser.maxSorts > parser.numSorts {
 		checkAndSort(parser)
 	}
 	return cli
@@ -330,33 +343,76 @@ func (parser *Parser) ParseDevice(line string) *Device {
 }
 
 func checkAndSort(parser *Parser) {
-	parser.Lock()
-	if atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold {
-		if parser.debugMode {
-			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
-		}
-		parser.UserAgentMisses = 0
-		sort.Sort(UserAgentSorter(parser.UA))
+	var wg sync.WaitGroup
+	if EUserAgentLookUpMode&parser.Mode == EUserAgentLookUpMode {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			parser.Lock()
+			if atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold {
+				if parser.debugMode {
+					fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
+				}
+				parser.UserAgentMisses = 0
+				if parser.ExpoSort {
+					parser.UserThreshHold *= 2
+
+				}
+				if parser.limitSorts {
+					parser.numSorts++
+				}
+				sort.Sort(UserAgentSorter(parser.UA))
+			}
+			parser.Unlock()
+		}()
 	}
-	parser.Unlock()
-	parser.Lock()
-	if atomic.LoadUint64(&parser.OsMisses) >= missesTreshold {
-		if parser.debugMode {
-			fmt.Printf("%s\tSorting OS slice\n", time.Now())
-		}
-		parser.OsMisses = 0
-		sort.Sort(OsSorter(parser.OS))
+	if EOsLookUpMode&parser.Mode == EOsLookUpMode {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			parser.Lock()
+			if atomic.LoadUint64(&parser.OsMisses) >= missesTreshold {
+				if parser.debugMode {
+					fmt.Printf("%s\tSorting OS slice\n", time.Now())
+				}
+				parser.OsMisses = 0
+				if parser.ExpoSort {
+					parser.OsThreshHold *= 2
+
+				}
+				if parser.limitSorts {
+					parser.numSorts++
+				}
+				sort.Sort(OsSorter(parser.OS))
+			}
+			parser.Unlock()
+		}()
 	}
-	parser.Unlock()
-	parser.Lock()
-	if atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold {
-		if parser.debugMode {
-			fmt.Printf("%s\tSorting Device slice\n", time.Now())
-		}
-		parser.DeviceMisses = 0
-		sort.Sort(DeviceSorter(parser.Device))
+	if EDeviceLookUpMode&parser.Mode == EDeviceLookUpMode {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			parser.Lock()
+			if atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold {
+				if parser.debugMode {
+					fmt.Printf("%s\tSorting Device slice\n", time.Now())
+				}
+				parser.DeviceMisses = 0
+				if parser.ExpoSort {
+					parser.DeviceThreshHold *= 2
+
+				}
+				if parser.limitSorts {
+					parser.numSorts++
+				}
+				sort.Sort(DeviceSorter(parser.Device))
+			}
+			parser.Unlock()
+		}()
 	}
-	parser.Unlock()
+	wg.Wait()
+
 }
 
 func compileRegex(flags, expr string) *regexp.Regexp {
