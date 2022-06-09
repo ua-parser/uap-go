@@ -244,6 +244,8 @@ var DefinitionYaml = []byte(`user_agent_parsers:
     family_replacement: 'TopBuzz'
   - regex: 'Mozilla.+Android.+(GSA)/(\d+)\.(\d+)\.(\d+)'
     family_replacement: 'Google'
+  - regex: '(MicroMessenger)(?:/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
+    family_replacement: 'WeiXin'
   - regex: '(MQQBrowser/Mini)(?:(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
     family_replacement: 'QQ Browser Mini'
   - regex: '(MQQBrowser)(?:/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
