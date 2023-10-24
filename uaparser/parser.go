@@ -231,35 +231,21 @@ func NewFromBytes(data []byte) (*Parser, error) {
 
 func (parser *Parser) Parse(line string) *Client {
 	cli := new(Client)
-	var wg sync.WaitGroup
 	if EUserAgentLookUpMode&parser.Mode == EUserAgentLookUpMode {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parser.RLock()
-			cli.UserAgent = parser.ParseUserAgent(line)
-			parser.RUnlock()
-		}()
+		parser.RLock()
+		cli.UserAgent = parser.ParseUserAgent(line)
+		parser.RUnlock()
 	}
 	if EOsLookUpMode&parser.Mode == EOsLookUpMode {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parser.RLock()
-			cli.Os = parser.ParseOs(line)
-			parser.RUnlock()
-		}()
+		parser.RLock()
+		cli.Os = parser.ParseOs(line)
+		parser.RUnlock()
 	}
 	if EDeviceLookUpMode&parser.Mode == EDeviceLookUpMode {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parser.RLock()
-			cli.Device = parser.ParseDevice(line)
-			parser.RUnlock()
-		}()
+		parser.RLock()
+		cli.Device = parser.ParseDevice(line)
+		parser.RUnlock()
 	}
-	wg.Wait()
 	if parser.UseSort == true {
 		checkAndSort(parser)
 	}
