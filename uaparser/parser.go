@@ -338,33 +338,35 @@ func (parser *Parser) ParseDevice(line string) *Device {
 }
 
 func checkAndSort(parser *Parser) {
-	parser.Lock()
 	if atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
+		parser.Lock()
 		parser.UserAgentMisses = 0
 		sort.Sort(UserAgentSorter(parser.UA))
+		parser.Unlock()
 	}
-	parser.Unlock()
-	parser.Lock()
+
 	if atomic.LoadUint64(&parser.OsMisses) >= missesTreshold {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
+		parser.Lock()
 		parser.OsMisses = 0
 		sort.Sort(OsSorter(parser.OS))
+		parser.Unlock()
 	}
-	parser.Unlock()
-	parser.Lock()
+
 	if atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
+		parser.Lock()
 		parser.DeviceMisses = 0
 		sort.Sort(DeviceSorter(parser.Device))
+		parser.Unlock()
 	}
-	parser.Unlock()
 }
 
 func compileRegex(flags, expr string) *regexp.Regexp {
