@@ -129,12 +129,16 @@ type Client struct {
 }
 
 type Parser struct {
-	cache *cache
-
-	RegexesDefinitions
+	/* atomic operation are done on the following unit64.
+	 * These must be 64bit aligned. On 32bit architectures
+	 * this is only guaranteed to be on the beginning of a struct */
 	UserAgentMisses uint64
 	OsMisses        uint64
 	DeviceMisses    uint64
+
+	cache *cache
+
+	RegexesDefinitions
 	Mode            int
 	UseSort         bool
 	debugMode       bool
