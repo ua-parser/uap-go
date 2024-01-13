@@ -235,35 +235,21 @@ func NewFromBytes(data []byte) (*Parser, error) {
 
 func (parser *Parser) Parse(line string) *Client {
 	cli := new(Client)
-	var wg sync.WaitGroup
 	if EUserAgentLookUpMode&parser.Mode == EUserAgentLookUpMode {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parser.RLock()
-			cli.UserAgent = parser.ParseUserAgent(line)
-			parser.RUnlock()
-		}()
+		parser.RLock()
+		cli.UserAgent = parser.ParseUserAgent(line)
+		parser.RUnlock()
 	}
 	if EOsLookUpMode&parser.Mode == EOsLookUpMode {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parser.RLock()
-			cli.Os = parser.ParseOs(line)
-			parser.RUnlock()
-		}()
+		parser.RLock()
+		cli.Os = parser.ParseOs(line)
+		parser.RUnlock()
 	}
 	if EDeviceLookUpMode&parser.Mode == EDeviceLookUpMode {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parser.RLock()
-			cli.Device = parser.ParseDevice(line)
-			parser.RUnlock()
-		}()
+		parser.RLock()
+		cli.Device = parser.ParseDevice(line)
+		parser.RUnlock()
 	}
-	wg.Wait()
 	if parser.UseSort == true {
 		checkAndSort(parser)
 	}
@@ -356,33 +342,35 @@ func (parser *Parser) ParseDevice(line string) *Device {
 }
 
 func checkAndSort(parser *Parser) {
-	parser.Lock()
 	if atomic.LoadUint64(&parser.UserAgentMisses) >= missesTreshold {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
+		parser.Lock()
 		parser.UserAgentMisses = 0
 		sort.Sort(UserAgentSorter(parser.UA))
+		parser.Unlock()
 	}
-	parser.Unlock()
-	parser.Lock()
+
 	if atomic.LoadUint64(&parser.OsMisses) >= missesTreshold {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
+		parser.Lock()
 		parser.OsMisses = 0
 		sort.Sort(OsSorter(parser.OS))
+		parser.Unlock()
 	}
-	parser.Unlock()
-	parser.Lock()
+
 	if atomic.LoadUint64(&parser.DeviceMisses) >= missesTreshold {
 		if parser.debugMode {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
+		parser.Lock()
 		parser.DeviceMisses = 0
 		sort.Sort(DeviceSorter(parser.Device))
+		parser.Unlock()
 	}
-	parser.Unlock()
 }
 
 func compileRegex(flags, expr string) *regexp.Regexp {
