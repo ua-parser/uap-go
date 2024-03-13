@@ -324,7 +324,7 @@ var DefinitionYaml = []byte(`user_agent_parsers:
   - regex: '(Vivaldi)/(\d+)\.(\d+)\.(\d+)'
   - regex: '(Edge?)/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)(?:\.(\d+)|)'
     family_replacement: 'Edge'
-  - regex: '(brave)/(\d+)\.(\d+)\.(\d+) Chrome'
+  - regex: '((Brave)|(BRAVE))( Chrome\/(\d+\.)+(\d+))?(\/((\d+\.)+)?(\d+))?'
     family_replacement: 'Brave'
   - regex: '(Chrome)/(\d+)\.(\d+)\.(\d+)[\d.]{0,100} Iron[^/]'
     family_replacement: 'Iron'
