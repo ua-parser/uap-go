@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type RegexesDefinitions struct {
@@ -139,9 +139,9 @@ type Parser struct {
 	cache *cache
 
 	RegexesDefinitions
-	Mode            int
-	UseSort         bool
-	debugMode       bool
+	Mode      int
+	UseSort   bool
+	debugMode bool
 }
 
 const (
