@@ -15,6 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
+
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v5
         with:
