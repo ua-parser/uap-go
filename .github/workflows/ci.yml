@@ -11,10 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.22', '1.23.x' ]
+        go-version: [ '1.22', '1.23', '1.24.x' ]
 
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
+
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v5
         with:
