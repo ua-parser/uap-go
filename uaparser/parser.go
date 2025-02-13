@@ -2,14 +2,14 @@ package uaparser
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type RegexesDefinitions struct {
@@ -139,9 +139,9 @@ type Parser struct {
 	cache *cache
 
 	RegexesDefinitions
-	Mode            int
-	UseSort         bool
-	debugMode       bool
+	Mode      int
+	UseSort   bool
+	debugMode bool
 }
 
 const (
@@ -175,7 +175,7 @@ func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML wit
 }
 
 func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool) (*Parser, error) {
-	data, err := ioutil.ReadFile(regexFile)
+	data, err := os.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 }
 
 func New(regexFile string) (*Parser, error) {
-	data, err := ioutil.ReadFile(regexFile)
+	data, err := os.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
 	}
@@ -264,7 +264,7 @@ func (parser *Parser) Parse(line string) *Client {
 		}()
 	}
 	wg.Wait()
-	if parser.UseSort == true {
+	if parser.UseSort {
 		checkAndSort(parser)
 	}
 	return cli

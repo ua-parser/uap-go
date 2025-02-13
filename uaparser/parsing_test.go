@@ -1,11 +1,11 @@
 package uaparser
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 var testParser *Parser
@@ -107,7 +107,7 @@ func TestGenericParseMethodConcurrency(t *testing.T) { // go test -race -run=Con
 }
 
 func unmarshalResourceTestFile(filepath string, v interface{}) {
-	file, err := ioutil.ReadFile(filepath)
+	file, err := os.ReadFile(filepath)
 	if nil != err {
 		log.Fatal(err)
 	}
