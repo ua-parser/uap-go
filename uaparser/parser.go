@@ -142,6 +142,7 @@ type Parser struct {
 	Mode            int
 	UseSort         bool
 	debugMode       bool
+	cacheSize       int
 }
 
 const (
@@ -152,11 +153,13 @@ const (
 	cDefaultMissesTreshold = 500000
 	cDefaultMatchIdxNotOk  = 20
 	cDefaultSortOption     = false
+	cDefaultCacheSize      = 1024
 )
 
 var (
-	missesTreshold = uint64(500000)
-	matchIdxNotOk  = 20
+	missesTreshold      = uint64(500000)
+	matchIdxNotOk       = 20
+	parserCacheSize     = 1024
 )
 
 func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
@@ -174,7 +177,7 @@ func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML wit
 	}
 }
 
-func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool) (*Parser, error) {
+func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool, cacheSize int) (*Parser, error) {
 	data, err := ioutil.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
@@ -184,6 +187,9 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 	}
 	if treshold > cMinMissesTreshold {
 		missesTreshold = uint64(treshold)
+	}
+	if cacheSize > 0 {
+		parserCacheSize = cacheSize
 	}
 	parser, err := NewFromBytes(data)
 	if err != nil {
@@ -202,6 +208,7 @@ func New(regexFile string) (*Parser, error) {
 	}
 	matchIdxNotOk = cDefaultMatchIdxNotOk
 	missesTreshold = cDefaultMissesTreshold
+	parserCacheSize = cDefaultCacheSize
 	parser, err := NewFromBytes(data)
 	if err != nil {
 		return nil, err
@@ -222,7 +229,7 @@ func NewFromSaved() *Parser {
 func NewFromBytes(data []byte) (*Parser, error) {
 	parser := &Parser{
 		Mode:  EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
-		cache: newCache(),
+		cache: newCache(parserCacheSize),
 	}
 	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
 		return nil, err

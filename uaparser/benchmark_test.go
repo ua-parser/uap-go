@@ -1,12 +1,17 @@
 package uaparser
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
+	"os"
+	"strings"
 	"testing"
 )
 
 var benchedParser *Parser
 var benchedParserWithOptions *Parser
+var largeUasSample []string
 
 func init() {
 	var err error
@@ -14,10 +19,16 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	benchedParserWithOptions, err = NewWithOptions("../uap-core/regexes.yaml", (EOsLookUpMode | EUserAgentLookUpMode), 100, 20, true, true)
+	benchedParserWithOptions, err = NewWithOptions("../uap-core/regexes.yaml", (EOsLookUpMode | EUserAgentLookUpMode), 100, 20, true, true, cDefaultCacheSize)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	uasContent, err := os.ReadFile("../uas")
+	if err != nil {
+		log.Fatal(err)
+	}
+	largeUasSample = strings.Split(string(uasContent), "\n")
 }
 
 func BenchmarkParser(b *testing.B) {
@@ -34,6 +45,33 @@ func BenchmarkParserWithOptions(b *testing.B) {
 			benchedParserWithOptions.Parse(ua)
 		}
 	}
+}
+
+func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
+	sizes := []int{cDefaultCacheSize, cDefaultCacheSize*2, cDefaultCacheSize*3, cDefaultCacheSize*4}
+
+	for _, size := range sizes {
+		parser, err := NewWithOptions(
+			"../uap-core/regexes.yaml",
+			EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
+			cDefaultMissesTreshold,
+			cDefaultMatchIdxNotOk,
+			false,
+			false,
+			size)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		b.ResetTimer()
+		b.Run(fmt.Sprintf("CacheSize=%d", size), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				index := rand.Intn(len(largeUasSample))
+				parser.Parse(largeUasSample[index])
+			}
+		})
+	}
+
 }
 
 var uas = []string{
