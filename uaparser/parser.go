@@ -190,7 +190,7 @@ func defaultParserConfig() *parserConfig {
 }
 
 func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool, cacheSize int) (*Parser, error) {
-	data, err := ioutil.ReadFile(regexFile)
+	data, err := os.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
 	}
