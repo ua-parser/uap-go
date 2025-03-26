@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/ua-parser/uap-go/uaparser"
 	"os"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/ua-parser/uap-go/uaparser"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 	switch os.Args[1] {
 	case "new":
 		fmt.Println("Running new version of uap...")
-		uaParser, _ := uaparser.NewWithOptions("./uap-core/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true)
+		uaParser, _ := uaparser.NewWithOptions("./uap-core/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true, 1024)
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			go runTest(uaParser, i, &wg)
@@ -38,7 +39,7 @@ func main() {
 		return
 	case "both":
 		fmt.Println("Running new version of uap...")
-		uaParser, _ := uaparser.NewWithOptions("./uap-core/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true)
+		uaParser, _ := uaparser.NewWithOptions("./uap-core/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true, 1024)
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			runTest(uaParser, i, &wg)
