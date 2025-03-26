@@ -54,6 +54,8 @@ func main() {
   if err != nil {
     log.Fatal(err)
   }
+  // or alternatively, using the golang version of our regexes we build from the yaml:
+  // parser :=  uaparser.NewFromSaved()
 
   client := parser.Parse(uagent)
 
