@@ -2,14 +2,14 @@ package uaparser
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type RegexesDefinitions struct {
@@ -190,7 +190,7 @@ func defaultParserConfig() *parserConfig {
 }
 
 func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool, cacheSize int) (*Parser, error) {
-	data, err := ioutil.ReadFile(regexFile)
+	data, err := os.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 }
 
 func New(regexFile string) (*Parser, error) {
-	data, err := ioutil.ReadFile(regexFile)
+	data, err := os.ReadFile(regexFile)
 	if nil != err {
 		return nil, err
 	}
@@ -292,7 +292,7 @@ func (parser *Parser) Parse(line string) *Client {
 		}()
 	}
 	wg.Wait()
-	if parser.config.UseSort == true {
+	if parser.config.UseSort {
 		checkAndSort(parser)
 	}
 	return cli
