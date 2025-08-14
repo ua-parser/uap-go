@@ -234,6 +234,10 @@ func New(regexFile string) (*Parser, error) {
 }
 
 func NewFromSaved() *Parser {
+	return NewFromSavedWithOptions(defaultParserConfig())
+}
+
+func NewFromSavedWithOptions(config *parserConfig) *Parser {
 	parser, err := newFromBytes(DefinitionYaml, defaultParserConfig())
 	if err != nil {
 		// if the YAML is malformed, it's a programmatic error inside what
