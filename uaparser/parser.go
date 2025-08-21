@@ -238,7 +238,7 @@ func NewFromSaved() *Parser {
 }
 
 func NewFromSavedWithOptions(config *parserConfig) *Parser {
-	parser, err := newFromBytes(DefinitionYaml, defaultParserConfig())
+	parser, err := newFromBytes(DefinitionYaml, config)
 	if err != nil {
 		// if the YAML is malformed, it's a programmatic error inside what
 		// we've statically-compiled in our binary. Panic!
