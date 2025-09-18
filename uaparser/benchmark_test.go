@@ -15,11 +15,25 @@ var largeUasSample []string
 
 func init() {
 	var err error
-	benchedParser, err = New("../uap-core/regexes.yaml")
+
+	regexes, err := os.ReadFile("../uap-core/regexes.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	benchedParserWithOptions, err = NewWithOptions("../uap-core/regexes.yaml", (EOsLookUpMode | EUserAgentLookUpMode), 100, 20, true, true, cDefaultCacheSize)
+
+	benchedParser, err = New(regexes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	benchedParserWithOptions, err = New(regexes,
+		WithMode(EOsLookUpMode|EUserAgentLookUpMode),
+		WithMissesThreshold(100),
+		WithMatchIdxNotOk(20),
+		WithSort(true),
+		WithDebug(true),
+		WithCacheSize(cDefaultCacheSize),
+	)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,17 +62,22 @@ func BenchmarkParserWithOptions(b *testing.B) {
 }
 
 func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
-	sizes := []int{cDefaultCacheSize, cDefaultCacheSize*2, cDefaultCacheSize*3, cDefaultCacheSize*4}
+	sizes := []int{cDefaultCacheSize, cDefaultCacheSize * 2, cDefaultCacheSize * 3, cDefaultCacheSize * 4}
+
+	regexes, err := os.ReadFile("../uap-core/regexes.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for _, size := range sizes {
-		parser, err := NewWithOptions(
-			"../uap-core/regexes.yaml",
-			EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
-			cDefaultMissesTreshold,
-			cDefaultMatchIdxNotOk,
-			false,
-			false,
-			size)
+		parser, err := New(regexes,
+			WithMode(EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode),
+			WithMissesThreshold(cDefaultMissesTreshold),
+			WithMatchIdxNotOk(cDefaultMatchIdxNotOk),
+			WithSort(false),
+			WithDebug(false),
+			WithCacheSize(size),
+		)
 		if err != nil {
 			log.Fatal(err)
 		}
