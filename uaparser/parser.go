@@ -2,7 +2,6 @@ package uaparser
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"sort"
 	"sync"
@@ -129,7 +128,7 @@ type Client struct {
 }
 
 type parserConfig struct {
-	Mode            int
+	Mode            LookupMode
 	UseSort         bool
 	DebugMode       bool
 	CacheSize       int
@@ -146,22 +145,69 @@ type Parser struct {
 	DeviceMisses    uint64
 
 	config *parserConfig
-	cache *cache
+	cache  *cache
 
 	RegexesDefinitions
 }
 
+type LookupMode int
+
 const (
-	EOsLookUpMode          = 1 /* 00000001 */
-	EUserAgentLookUpMode   = 2 /* 00000010 */
-	EDeviceLookUpMode      = 4 /* 00000100 */
-	cMinMissesTreshold     = 100000
-	cDefaultMissesTreshold = 500000
-	cDefaultMatchIdxNotOk  = 20
-	cDefaultSortOption     = false
-	cDefaultDebugMode      = false
-	cDefaultCacheSize      = 1024
+	EOsLookUpMode          LookupMode = 1 /* 00000001 */
+	EUserAgentLookUpMode   LookupMode = 2 /* 00000010 */
+	EDeviceLookUpMode      LookupMode = 4 /* 00000100 */
+	cMinMissesTreshold                = 100000
+	cDefaultMissesTreshold            = 500000
+	cDefaultMatchIdxNotOk             = 20
+	cDefaultSortOption                = false
+	cDefaultDebugMode                 = false
+	cDefaultCacheSize                 = 1024
 )
+
+func New(data []byte, options ...Option) (*Parser, error) {
+	parser := &Parser{
+		config: &parserConfig{
+			Mode:            EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
+			UseSort:         cDefaultSortOption,
+			DebugMode:       cDefaultDebugMode,
+			CacheSize:       cDefaultCacheSize,
+			MissesThreshold: cMinMissesTreshold,
+			MatchIdxNotOk:   cDefaultMatchIdxNotOk,
+		},
+	}
+
+	for _, o := range options {
+		o(parser)
+	}
+
+	if parser.config.MatchIdxNotOk < 0 {
+		parser.config.MatchIdxNotOk = 0
+	}
+
+	if parser.config.MissesThreshold <= cMinMissesTreshold {
+		parser.config.MissesThreshold = cMinMissesTreshold
+	}
+
+	if parser.config.CacheSize < 0 {
+		parser.config.CacheSize = cDefaultCacheSize
+	}
+
+	if parser.cache == nil {
+		parser.cache = newCache(parser.config.CacheSize)
+	}
+
+	if data == nil {
+		data = DefinitionYaml
+	}
+
+	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
+		return nil, fmt.Errorf("error parsing regexes definitions: %w", err)
+	}
+
+	parser.mustCompile()
+
+	return parser, nil
+}
 
 func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
 	for _, p := range parser.UA {
@@ -176,93 +222,6 @@ func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML wit
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
-}
-
-func defaultParserConfig() *parserConfig {
-	return &parserConfig{
-		Mode: EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
-		UseSort: cDefaultSortOption,
-		DebugMode: cDefaultDebugMode,
-		CacheSize: cDefaultCacheSize,
-		MissesThreshold: cMinMissesTreshold,
-		MatchIdxNotOk:   cDefaultMatchIdxNotOk,
-	}
-}
-
-func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debugMode bool, cacheSize int) (*Parser, error) {
-	data, err := os.ReadFile(regexFile)
-	if nil != err {
-		return nil, err
-	}
-
-	cfg := &parserConfig{
-		Mode: mode,
-		UseSort: useSort,
-		DebugMode: debugMode,
-		MatchIdxNotOk: cDefaultMatchIdxNotOk,
-		MissesThreshold: cDefaultMissesTreshold,
-		CacheSize: cDefaultCacheSize,
-	}
-
-	if topCnt >= 0 {
-		cfg.MatchIdxNotOk = topCnt
-	}
-	if treshold > cMinMissesTreshold {
-		cfg.MissesThreshold = uint64(treshold)
-	}
-	if cacheSize > 0 {
-		cfg.CacheSize = cacheSize
-	}
-
-	parser, err := newFromBytes(data, cfg)
-	if err != nil {
-		return nil, err
-	}
-	return parser, nil
-}
-
-func New(regexFile string) (*Parser, error) {
-	data, err := os.ReadFile(regexFile)
-	if nil != err {
-		return nil, err
-	}
-	parser, err := newFromBytes(data, defaultParserConfig())
-	if err != nil {
-		return nil, err
-	}
-	return parser, nil
-}
-
-func NewFromSaved() *Parser {
-	return NewFromSavedWithOptions(defaultParserConfig())
-}
-
-func NewFromSavedWithOptions(config *parserConfig) *Parser {
-	parser, err := newFromBytes(DefinitionYaml, config)
-	if err != nil {
-		// if the YAML is malformed, it's a programmatic error inside what
-		// we've statically-compiled in our binary. Panic!
-		panic(err.Error())
-	}
-	return parser
-}
-
-func NewFromBytes(data []byte) (*Parser, error) {
-	return newFromBytes(data, defaultParserConfig())
-}
-
-func newFromBytes(data []byte, config *parserConfig) (*Parser, error) {
-	parser := &Parser{
-		config: config,
-		cache: newCache(config.CacheSize),
-	}
-	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
-		return nil, err
-	}
-
-	parser.mustCompile()
-
-	return parser, nil
 }
 
 func (parser *Parser) Parse(line string) *Client {
