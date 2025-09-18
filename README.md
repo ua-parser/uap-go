@@ -10,8 +10,7 @@ This is the Go implementation of the [ua-parser](https://github.com/ua-parser)
 
 ## Updating
 
-  `uap-core` definitions are, by default, compiled and included in the Go portion of this package. To regenerate these definitions you can run the `build.sh` script.
-
+  `uap-core` definitions are, by default, compiled and included in the Go portion of this package. To regenerate these definitions you can run the `build.sh` script.  All changes to regexes for detection must be made to the `uap-core` repository, and then pulled in to this repository via the build.sh script which updates the submodule.
 ## Testing
 
     $ cd uaparser
