@@ -37,3 +37,9 @@ func WithMatchIdxNotOk(idx int) Option {
 		s.config.MatchIdxNotOk = idx
 	}
 }
+
+func WithRegexesDefinitions(def *RegexesDefinitions) Option {
+	return func(s *Parser) {
+		s.RegexesDefinitions = def
+	}
+}

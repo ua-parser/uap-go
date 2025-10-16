@@ -11,12 +11,19 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var defaultRegexesDefinitions = sync.OnceValue(func() *RegexesDefinitions {
+	var def *RegexesDefinitions
+	if err := yaml.Unmarshal(DefinitionYaml, def); err != nil {
+		panic(fmt.Errorf("error parsing regexes definitions: %w", err))
+	}
+
+	return def
+})
+
 type RegexesDefinitions struct {
 	UA     []*uaParser     `yaml:"user_agent_parsers"`
 	OS     []*osParser     `yaml:"os_parsers"`
 	Device []*deviceParser `yaml:"device_parsers"`
-	_      [4]byte         // padding for alignment
-	sync.RWMutex
 }
 
 type UserAgentSorter []*uaParser
@@ -147,7 +154,9 @@ type Parser struct {
 	config *parserConfig
 	cache  *cache
 
-	RegexesDefinitions
+	*RegexesDefinitions
+
+	mu *sync.RWMutex
 }
 
 type LookupMode int
@@ -164,7 +173,7 @@ const (
 	cDefaultCacheSize                 = 1024
 )
 
-func New(data []byte, options ...Option) (*Parser, error) {
+func New(options ...Option) (*Parser, error) {
 	parser := &Parser{
 		config: &parserConfig{
 			Mode:            EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
@@ -174,6 +183,7 @@ func New(data []byte, options ...Option) (*Parser, error) {
 			MissesThreshold: cMinMissesTreshold,
 			MatchIdxNotOk:   cDefaultMatchIdxNotOk,
 		},
+		mu: &sync.RWMutex{},
 	}
 
 	for _, o := range options {
@@ -196,12 +206,8 @@ func New(data []byte, options ...Option) (*Parser, error) {
 		parser.cache = newCache(parser.config.CacheSize)
 	}
 
-	if data == nil {
-		data = DefinitionYaml
-	}
-
-	if err := yaml.Unmarshal(data, &parser.RegexesDefinitions); err != nil {
-		return nil, fmt.Errorf("error parsing regexes definitions: %w", err)
+	if parser.RegexesDefinitions == nil {
+		parser.RegexesDefinitions = defaultRegexesDefinitions()
 	}
 
 	parser.mustCompile()
@@ -231,27 +237,27 @@ func (parser *Parser) Parse(line string) *Client {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.RLock()
+			parser.mu.RLock()
 			cli.UserAgent = parser.ParseUserAgent(line)
-			parser.RUnlock()
+			parser.mu.RUnlock()
 		}()
 	}
 	if EOsLookUpMode&parser.config.Mode == EOsLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.RLock()
+			parser.mu.RLock()
 			cli.Os = parser.ParseOs(line)
-			parser.RUnlock()
+			parser.mu.RUnlock()
 		}()
 	}
 	if EDeviceLookUpMode&parser.config.Mode == EDeviceLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.RLock()
+			parser.mu.RLock()
 			cli.Device = parser.ParseDevice(line)
-			parser.RUnlock()
+			parser.mu.RUnlock()
 		}()
 	}
 	wg.Wait()
@@ -347,7 +353,7 @@ func (parser *Parser) ParseDevice(line string) *Device {
 }
 
 func checkAndSort(parser *Parser) {
-	parser.Lock()
+	parser.mu.Lock()
 	if atomic.LoadUint64(&parser.UserAgentMisses) >= parser.config.MissesThreshold {
 		if parser.config.DebugMode {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
@@ -355,8 +361,8 @@ func checkAndSort(parser *Parser) {
 		parser.UserAgentMisses = 0
 		sort.Sort(UserAgentSorter(parser.UA))
 	}
-	parser.Unlock()
-	parser.Lock()
+	parser.mu.Unlock()
+	parser.mu.Lock()
 	if atomic.LoadUint64(&parser.OsMisses) >= parser.config.MissesThreshold {
 		if parser.config.DebugMode {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
@@ -364,8 +370,8 @@ func checkAndSort(parser *Parser) {
 		parser.OsMisses = 0
 		sort.Sort(OsSorter(parser.OS))
 	}
-	parser.Unlock()
-	parser.Lock()
+	parser.mu.Unlock()
+	parser.mu.Lock()
 	if atomic.LoadUint64(&parser.DeviceMisses) >= parser.config.MissesThreshold {
 		if parser.config.DebugMode {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
@@ -373,7 +379,7 @@ func checkAndSort(parser *Parser) {
 		parser.DeviceMisses = 0
 		sort.Sort(DeviceSorter(parser.Device))
 	}
-	parser.Unlock()
+	parser.mu.Unlock()
 }
 
 func compileRegex(flags, expr string) *regexp.Regexp {

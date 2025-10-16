@@ -45,6 +45,7 @@ import (
   "os"
 
   "github.com/ua-parser/uap-go/uaparser"
+  "gopkg.in/yaml.v3"
 )
 
 func main() {
@@ -55,8 +56,15 @@ func main() {
   if err != nil {
 	  log.Fatal(err)
   }
+
+  var def *uaparser.RegexesDefinitions
+
+  if err := yaml.Unmarshal(regexes, def); err != nil {
+    fmt.Printf("error parsing regexes definitions. Error: %s\n", err.Error())
+    return
+  }
   
-  parser, err := uaparser.New(regexes)
+  parser, err := uaparser.New(uaparser.WithRegexesDefinitions(def))
   if err != nil {
     log.Fatal(err)
   }
