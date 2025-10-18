@@ -18,7 +18,13 @@ func init() {
 		log.Fatal(err)
 	}
 
-	testParser, err = New(uaRegexes)
+	var def *RegexesDefinitions
+
+	if err := yaml.Unmarshal(uaRegexes, def); err != nil {
+		log.Fatal(err)
+	}
+
+	testParser, err = New(WithRegexesDefinitions(def))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +53,7 @@ func TestOSParsing(t *testing.T) {
 func TestReadsInternalYAML(t *testing.T) {
 	t.Parallel()
 
-	_, err := New(DefinitionYaml)
+	_, err := New()
 	if err != nil {
 		t.Fatal(err)
 	}

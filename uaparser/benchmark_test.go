@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 var benchedParser *Parser
@@ -21,11 +23,17 @@ func init() {
 		log.Fatal(err)
 	}
 
-	benchedParser, err = New(regexes)
+	var def *RegexesDefinitions
+
+	if err := yaml.Unmarshal(regexes, def); err != nil {
+		log.Fatal(err)
+	}
+
+	benchedParser, err = New(WithRegexesDefinitions(def))
 	if err != nil {
 		log.Fatal(err)
 	}
-	benchedParserWithOptions, err = New(regexes,
+	benchedParserWithOptions, err = New(WithRegexesDefinitions(def),
 		WithMode(EOsLookUpMode|EUserAgentLookUpMode),
 		WithMissesThreshold(100),
 		WithMatchIdxNotOk(20),
@@ -69,8 +77,14 @@ func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
 		log.Fatal(err)
 	}
 
+	var def *RegexesDefinitions
+
+	if err := yaml.Unmarshal(regexes, def); err != nil {
+		log.Fatal(err)
+	}
+
 	for _, size := range sizes {
-		parser, err := New(regexes,
+		parser, err := New(WithRegexesDefinitions(def),
 			WithMode(EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode),
 			WithMissesThreshold(cDefaultMissesTreshold),
 			WithMatchIdxNotOk(cDefaultMatchIdxNotOk),
