@@ -32,7 +32,7 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 }
 
 // NewFromSaved is deprecated.
-// Deprecated: Use New and option functions instead.
+// Deprecated: Use New() instead.
 func NewFromSaved() *Parser {
 	parser, err := New()
 	if err != nil {
