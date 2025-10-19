@@ -216,15 +216,15 @@ func New(options ...Option) (*Parser, error) {
 }
 
 func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
-	for _, p := range parser.UA {
+	for _, p := range parser.RegexesDefinitions.UA {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
-	for _, p := range parser.OS {
+	for _, p := range parser.RegexesDefinitions.OS {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
-	for _, p := range parser.Device {
+	for _, p := range parser.RegexesDefinitions.Device {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
@@ -275,7 +275,7 @@ func (parser *Parser) ParseUserAgent(line string) *UserAgent {
 	ua := new(UserAgent)
 	foundIdx := -1
 	found := false
-	for i, uaPattern := range parser.UA {
+	for i, uaPattern := range parser.RegexesDefinitions.UA {
 		uaPattern.Match(line, ua)
 		if len(ua.Family) > 0 {
 			found = true
@@ -303,7 +303,7 @@ func (parser *Parser) ParseOs(line string) *Os {
 	os := new(Os)
 	foundIdx := -1
 	found := false
-	for i, osPattern := range parser.OS {
+	for i, osPattern := range parser.RegexesDefinitions.OS {
 		osPattern.Match(line, os)
 		if len(os.Family) > 0 {
 			found = true
@@ -332,7 +332,7 @@ func (parser *Parser) ParseDevice(line string) *Device {
 	dvc := new(Device)
 	foundIdx := -1
 	found := false
-	for i, dvcPattern := range parser.Device {
+	for i, dvcPattern := range parser.RegexesDefinitions.Device {
 		dvcPattern.Match(line, dvc)
 		if len(dvc.Family) > 0 {
 			found = true
@@ -359,7 +359,7 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
 		parser.UserAgentMisses = 0
-		sort.Sort(UserAgentSorter(parser.UA))
+		sort.Sort(UserAgentSorter(parser.RegexesDefinitions.UA))
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
@@ -368,7 +368,7 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
 		parser.OsMisses = 0
-		sort.Sort(OsSorter(parser.OS))
+		sort.Sort(OsSorter(parser.RegexesDefinitions.OS))
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
@@ -377,7 +377,7 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
 		parser.DeviceMisses = 0
-		sort.Sort(DeviceSorter(parser.Device))
+		sort.Sort(DeviceSorter(parser.RegexesDefinitions.Device))
 	}
 	parser.mu.Unlock()
 }

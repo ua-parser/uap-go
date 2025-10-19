@@ -14,9 +14,9 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 		return nil, err
 	}
 
-	def := &RegexesDefinitions{}
+	var def RegexesDefinitions
 
-	if err := yaml.Unmarshal(uaRegexes, def); err != nil {
+	if err := yaml.Unmarshal(uaRegexes, &def); err != nil {
 		return nil, err
 	}
 
@@ -47,9 +47,9 @@ func NewFromSaved() *Parser {
 // NewFromBytes is deprecated.
 // Deprecated: Use New(WithRegexDefintions(...)) instead
 func NewFromBytes(data []byte) (*Parser, error) {
-	def := &RegexesDefinitions{}
+	var def RegexesDefinitions
 
-	if err := yaml.Unmarshal(data, def); err != nil {
+	if err := yaml.Unmarshal(data, &def); err != nil {
 		return nil, err
 	}
 

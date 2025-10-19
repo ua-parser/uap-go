@@ -23,9 +23,9 @@ func init() {
 		log.Fatal(err)
 	}
 
-	def := &RegexesDefinitions{}
+	var def RegexesDefinitions
 
-	if err := yaml.Unmarshal(regexes, def); err != nil {
+	if err := yaml.Unmarshal(regexes, &def); err != nil {
 		log.Fatal(err)
 	}
 
@@ -77,9 +77,9 @@ func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	def := &RegexesDefinitions{}
+	var def RegexesDefinitions
 
-	if err := yaml.Unmarshal(regexes, def); err != nil {
+	if err := yaml.Unmarshal(regexes, &def); err != nil {
 		log.Fatal(err)
 	}
 

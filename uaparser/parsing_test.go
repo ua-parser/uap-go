@@ -18,9 +18,9 @@ func init() {
 		log.Fatal(err)
 	}
 
-	def := &RegexesDefinitions{}
+	var def RegexesDefinitions
 
-	if err := yaml.Unmarshal(uaRegexes, def); err != nil {
+	if err := yaml.Unmarshal(uaRegexes, &def); err != nil {
 		log.Fatal(err)
 	}
 
