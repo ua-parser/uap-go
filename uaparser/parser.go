@@ -11,8 +11,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var defaultRegexesDefinitions = sync.OnceValue(func() RegexesDefinitions {
-	var def RegexesDefinitions
+var defaultRegexesDefinitions = sync.OnceValue(func() RegexDefinitions {
+	var def RegexDefinitions
 	if err := yaml.Unmarshal(DefinitionYaml, &def); err != nil {
 		panic(fmt.Errorf("error parsing regexes definitions: %w", err))
 	}
@@ -20,7 +20,7 @@ var defaultRegexesDefinitions = sync.OnceValue(func() RegexesDefinitions {
 	return def
 })
 
-type RegexesDefinitions struct {
+type RegexDefinitions struct {
 	UA     []*uaParser     `yaml:"user_agent_parsers"`
 	OS     []*osParser     `yaml:"os_parsers"`
 	Device []*deviceParser `yaml:"device_parsers"`
@@ -154,7 +154,7 @@ type Parser struct {
 	config *parserConfig
 	cache  *cache
 
-	*RegexesDefinitions
+	*RegexDefinitions
 
 	mu *sync.RWMutex
 }
@@ -206,9 +206,9 @@ func New(options ...Option) (*Parser, error) {
 		parser.cache = newCache(parser.config.CacheSize)
 	}
 
-	if parser.RegexesDefinitions == nil {
+	if parser.RegexDefinitions == nil {
 		regexesDefinitions := defaultRegexesDefinitions()
-		parser.RegexesDefinitions = &regexesDefinitions
+		parser.RegexDefinitions = &regexesDefinitions
 	}
 
 	parser.mustCompile()
@@ -217,15 +217,15 @@ func New(options ...Option) (*Parser, error) {
 }
 
 func (parser *Parser) mustCompile() { // until we can use yaml.UnmarshalYAML with embedded pointer struct
-	for _, p := range parser.RegexesDefinitions.UA {
+	for _, p := range parser.RegexDefinitions.UA {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
-	for _, p := range parser.RegexesDefinitions.OS {
+	for _, p := range parser.RegexDefinitions.OS {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
-	for _, p := range parser.RegexesDefinitions.Device {
+	for _, p := range parser.RegexDefinitions.Device {
 		p.Reg = compileRegex(p.Flags, p.Expr)
 		p.setDefaults()
 	}
@@ -276,7 +276,7 @@ func (parser *Parser) ParseUserAgent(line string) *UserAgent {
 	ua := new(UserAgent)
 	foundIdx := -1
 	found := false
-	for i, uaPattern := range parser.RegexesDefinitions.UA {
+	for i, uaPattern := range parser.RegexDefinitions.UA {
 		uaPattern.Match(line, ua)
 		if len(ua.Family) > 0 {
 			found = true
@@ -304,7 +304,7 @@ func (parser *Parser) ParseOs(line string) *Os {
 	os := new(Os)
 	foundIdx := -1
 	found := false
-	for i, osPattern := range parser.RegexesDefinitions.OS {
+	for i, osPattern := range parser.RegexDefinitions.OS {
 		osPattern.Match(line, os)
 		if len(os.Family) > 0 {
 			found = true
@@ -333,7 +333,7 @@ func (parser *Parser) ParseDevice(line string) *Device {
 	dvc := new(Device)
 	foundIdx := -1
 	found := false
-	for i, dvcPattern := range parser.RegexesDefinitions.Device {
+	for i, dvcPattern := range parser.RegexDefinitions.Device {
 		dvcPattern.Match(line, dvc)
 		if len(dvc.Family) > 0 {
 			found = true
@@ -360,7 +360,7 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
 		parser.UserAgentMisses = 0
-		sort.Sort(UserAgentSorter(parser.RegexesDefinitions.UA))
+		sort.Sort(UserAgentSorter(parser.RegexDefinitions.UA))
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
@@ -369,7 +369,7 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
 		parser.OsMisses = 0
-		sort.Sort(OsSorter(parser.RegexesDefinitions.OS))
+		sort.Sort(OsSorter(parser.RegexDefinitions.OS))
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
@@ -378,7 +378,7 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
 		parser.DeviceMisses = 0
-		sort.Sort(DeviceSorter(parser.RegexesDefinitions.Device))
+		sort.Sort(DeviceSorter(parser.RegexDefinitions.Device))
 	}
 	parser.mu.Unlock()
 }

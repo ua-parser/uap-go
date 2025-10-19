@@ -23,17 +23,17 @@ func init() {
 		log.Fatal(err)
 	}
 
-	var def RegexesDefinitions
+	var def RegexDefinitions
 
 	if err := yaml.Unmarshal(regexes, &def); err != nil {
 		log.Fatal(err)
 	}
 
-	benchedParser, err = New(WithRegexesDefinitions(def))
+	benchedParser, err = New(WithRegexDefinitions(def))
 	if err != nil {
 		log.Fatal(err)
 	}
-	benchedParserWithOptions, err = New(WithRegexesDefinitions(def),
+	benchedParserWithOptions, err = New(WithRegexDefinitions(def),
 		WithMode(EOsLookUpMode|EUserAgentLookUpMode),
 		WithMissesThreshold(100),
 		WithMatchIdxNotOk(20),
@@ -77,14 +77,14 @@ func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
 		log.Fatal(err)
 	}
 
-	var def RegexesDefinitions
+	var def RegexDefinitions
 
 	if err := yaml.Unmarshal(regexes, &def); err != nil {
 		log.Fatal(err)
 	}
 
 	for _, size := range sizes {
-		parser, err := New(WithRegexesDefinitions(def),
+		parser, err := New(WithRegexDefinitions(def),
 			WithMode(EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode),
 			WithMissesThreshold(cDefaultMissesTreshold),
 			WithMatchIdxNotOk(cDefaultMatchIdxNotOk),

@@ -18,13 +18,13 @@ func init() {
 		log.Fatal(err)
 	}
 
-	var def RegexesDefinitions
+	var def RegexDefinitions
 
 	if err := yaml.Unmarshal(uaRegexes, &def); err != nil {
 		log.Fatal(err)
 	}
 
-	testParser, err = New(WithRegexesDefinitions(def))
+	testParser, err = New(WithRegexDefinitions(def))
 	if err != nil {
 		log.Fatal(err)
 	}

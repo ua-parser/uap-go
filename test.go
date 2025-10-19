@@ -24,9 +24,9 @@ func main() {
 		return
 	}
 
-	var def *uaparser.RegexesDefinitions
+	var def uaparser.RegexDefinitions
 
-	if err := yaml.Unmarshal(regexes, def); err != nil {
+	if err := yaml.Unmarshal(regexes, &def); err != nil {
 		fmt.Printf("error parsing regexes definitions. Error: %s\n", err.Error())
 		return
 	}
@@ -37,7 +37,7 @@ func main() {
 	case "new":
 		fmt.Println("Running new version of uap...")
 		uaParser, _ := uaparser.New(
-			uaparser.WithRegexesDefinitions(def),
+			uaparser.WithRegexDefinitions(def),
 			uaparser.WithMode(uaparser.EOsLookUpMode|uaparser.EUserAgentLookUpMode),
 			uaparser.WithMissesThreshold(100),
 			uaparser.WithMatchIdxNotOk(20),
@@ -53,7 +53,7 @@ func main() {
 		return
 	case "old":
 		fmt.Println("Running old version of uap...")
-		uaParser, _ := uaparser.New(uaparser.WithRegexesDefinitions(def))
+		uaParser, _ := uaparser.New(uaparser.WithRegexDefinitions(def))
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			go runTest(uaParser, i, &wg)
@@ -63,7 +63,7 @@ func main() {
 	case "both":
 		fmt.Println("Running new version of uap...")
 		uaParser, _ := uaparser.New(
-			uaparser.WithRegexesDefinitions(def),
+			uaparser.WithRegexDefinitions(def),
 			uaparser.WithMode(uaparser.EOsLookUpMode|uaparser.EUserAgentLookUpMode),
 			uaparser.WithMissesThreshold(100),
 			uaparser.WithMatchIdxNotOk(20),
@@ -76,7 +76,7 @@ func main() {
 			runTest(uaParser, i, &wg)
 		}
 		fmt.Println("Running old version of uap...")
-		uaParser, _ = uaparser.New(uaparser.WithRegexesDefinitions(def))
+		uaParser, _ = uaparser.New(uaparser.WithRegexDefinitions(def))
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			runTest(uaParser, i, &wg)
