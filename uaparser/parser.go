@@ -12,7 +12,7 @@ import (
 )
 
 var defaultRegexesDefinitions = sync.OnceValue(func() *RegexesDefinitions {
-	var def *RegexesDefinitions
+	def := &RegexesDefinitions{}
 	if err := yaml.Unmarshal(DefinitionYaml, def); err != nil {
 		panic(fmt.Errorf("error parsing regexes definitions: %w", err))
 	}
