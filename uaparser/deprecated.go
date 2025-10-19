@@ -45,7 +45,7 @@ func NewFromSaved() *Parser {
 }
 
 // NewFromBytes is deprecated.
-// Deprecated: Use New and option functions instead.
+// Deprecated: Use New(WithRegexDefintions(...)) instead
 func NewFromBytes(data []byte) (*Parser, error) {
 	var def *RegexesDefinitions
 
