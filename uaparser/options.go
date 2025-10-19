@@ -38,8 +38,8 @@ func WithMatchIdxNotOk(idx int) Option {
 	}
 }
 
-func WithRegexesDefinitions(def *RegexesDefinitions) Option {
+func WithRegexesDefinitions(def RegexesDefinitions) Option {
 	return func(s *Parser) {
-		s.RegexesDefinitions = def
+		s.RegexesDefinitions = &def
 	}
 }
