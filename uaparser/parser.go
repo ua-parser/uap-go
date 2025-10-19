@@ -11,9 +11,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var defaultRegexesDefinitions = sync.OnceValue(func() *RegexesDefinitions {
-	def := &RegexesDefinitions{}
-	if err := yaml.Unmarshal(DefinitionYaml, def); err != nil {
+var defaultRegexesDefinitions = sync.OnceValue(func() RegexesDefinitions {
+	var def RegexesDefinitions
+	if err := yaml.Unmarshal(DefinitionYaml, &def); err != nil {
 		panic(fmt.Errorf("error parsing regexes definitions: %w", err))
 	}
 
@@ -207,7 +207,8 @@ func New(options ...Option) (*Parser, error) {
 	}
 
 	if parser.RegexesDefinitions == nil {
-		parser.RegexesDefinitions = defaultRegexesDefinitions()
+		regexesDefinitions := defaultRegexesDefinitions()
+		parser.RegexesDefinitions = &regexesDefinitions
 	}
 
 	parser.mustCompile()
