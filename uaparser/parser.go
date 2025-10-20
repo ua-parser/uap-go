@@ -360,7 +360,14 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
 		parser.UserAgentMisses = 0
-		sort.Sort(UserAgentSorter(parser.RegexDefinitions.UA))
+
+		// create a copy to avoid modifying the original slice while in use.
+		uaDefinitions := make([]*uaParser, len(parser.RegexDefinitions.UA))
+		copy(uaDefinitions, parser.RegexDefinitions.UA)
+
+		sort.Sort(UserAgentSorter(uaDefinitions))
+
+		parser.RegexDefinitions.UA = uaDefinitions
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
@@ -369,7 +376,14 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
 		parser.OsMisses = 0
-		sort.Sort(OsSorter(parser.RegexDefinitions.OS))
+
+		// create a copy to avoid modifying the original slice while in use.
+		osDefinitions := make([]*osParser, len(parser.RegexDefinitions.OS))
+		copy(osDefinitions, parser.RegexDefinitions.OS)
+
+		sort.Sort(OsSorter(osDefinitions))
+
+		parser.RegexDefinitions.OS = osDefinitions
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
@@ -378,7 +392,14 @@ func checkAndSort(parser *Parser) {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
 		parser.DeviceMisses = 0
-		sort.Sort(DeviceSorter(parser.RegexDefinitions.Device))
+
+		// create a copy to avoid modifying the original slice while in use.
+		deviceDefinitions := make([]*deviceParser, len(parser.RegexDefinitions.Device))
+		copy(deviceDefinitions, parser.RegexDefinitions.Device)
+
+		sort.Sort(DeviceSorter(deviceDefinitions))
+
+		parser.RegexDefinitions.Device = deviceDefinitions
 	}
 	parser.mu.Unlock()
 }
