@@ -180,7 +180,7 @@ func New(options ...Option) (*Parser, error) {
 			UseSort:         cDefaultSortOption,
 			DebugMode:       cDefaultDebugMode,
 			CacheSize:       cDefaultCacheSize,
-			MissesThreshold: cMinMissesTreshold,
+			MissesThreshold: cDefaultMissesTreshold,
 			MatchIdxNotOk:   cDefaultMatchIdxNotOk,
 		},
 		mu: &sync.RWMutex{},
