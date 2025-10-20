@@ -39,9 +39,8 @@ func main() {
 		uaParser, _ := uaparser.New(
 			uaparser.WithRegexDefinitions(def),
 			uaparser.WithMode(uaparser.EOsLookUpMode|uaparser.EUserAgentLookUpMode),
-			uaparser.WithMissesThreshold(100),
 			uaparser.WithMatchIdxNotOk(20),
-			uaparser.WithSort(true),
+			uaparser.WithSort(true, uaparser.WithMissesThreshold(100)),
 			uaparser.WithDebug(true),
 			uaparser.WithCacheSize(1024),
 		)
@@ -65,9 +64,8 @@ func main() {
 		uaParser, _ := uaparser.New(
 			uaparser.WithRegexDefinitions(def),
 			uaparser.WithMode(uaparser.EOsLookUpMode|uaparser.EUserAgentLookUpMode),
-			uaparser.WithMissesThreshold(100),
 			uaparser.WithMatchIdxNotOk(20),
-			uaparser.WithSort(true),
+			uaparser.WithSort(true, uaparser.WithMissesThreshold(100)),
 			uaparser.WithDebug(true),
 			uaparser.WithCacheSize(1024),
 		)

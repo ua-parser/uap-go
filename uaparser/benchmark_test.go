@@ -35,9 +35,8 @@ func init() {
 	}
 	benchedParserWithOptions, err = New(WithRegexDefinitions(def),
 		WithMode(EOsLookUpMode|EUserAgentLookUpMode),
-		WithMissesThreshold(100),
 		WithMatchIdxNotOk(20),
-		WithSort(true),
+		WithSort(true, WithMissesThreshold(100)),
 		WithDebug(true),
 		WithCacheSize(cDefaultCacheSize),
 	)
@@ -86,9 +85,8 @@ func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
 	for _, size := range sizes {
 		parser, err := New(WithRegexDefinitions(def),
 			WithMode(EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode),
-			WithMissesThreshold(cDefaultMissesTreshold),
 			WithMatchIdxNotOk(cDefaultMatchIdxNotOk),
-			WithSort(false),
+			WithSort(false, WithMissesThreshold(cDefaultMissesTreshold)),
 			WithDebug(false),
 			WithCacheSize(size),
 		)

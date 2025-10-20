@@ -23,9 +23,8 @@ func NewWithOptions(regexFile string, mode, treshold, topCnt int, useSort, debug
 	return New(
 		WithRegexDefinitions(def),
 		WithMode(LookupMode(mode)),
-		WithMissesThreshold(uint64(treshold)),
 		WithMatchIdxNotOk(topCnt),
-		WithSort(useSort),
+		WithSort(useSort, WithMissesThreshold(uint64(treshold))),
 		WithDebug(debugMode),
 		WithCacheSize(cacheSize),
 	)

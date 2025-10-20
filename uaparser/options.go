@@ -8,9 +8,13 @@ func WithMode(mode LookupMode) Option {
 	}
 }
 
-func WithSort(useSort bool) Option {
+func WithSort(useSort bool, options ...SortOption) Option {
 	return func(s *Parser) {
 		s.config.UseSort = useSort
+
+		for _, o := range options {
+			o(s)
+		}
 	}
 }
 
@@ -26,12 +30,6 @@ func WithCacheSize(size int) Option {
 	}
 }
 
-func WithMissesThreshold(threshold uint64) Option {
-	return func(s *Parser) {
-		s.config.MissesThreshold = threshold
-	}
-}
-
 func WithMatchIdxNotOk(idx int) Option {
 	return func(s *Parser) {
 		s.config.MatchIdxNotOk = idx
@@ -41,5 +39,13 @@ func WithMatchIdxNotOk(idx int) Option {
 func WithRegexDefinitions(def RegexDefinitions) Option {
 	return func(s *Parser) {
 		s.RegexDefinitions = &def
+	}
+}
+
+type SortOption func(*Parser)
+
+func WithMissesThreshold(threshold uint64) SortOption {
+	return func(s *Parser) {
+		s.config.MissesThreshold = threshold
 	}
 }
