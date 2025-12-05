@@ -26,6 +26,32 @@ type RegexDefinitions struct {
 	Device []*deviceParser `yaml:"device_parsers"`
 }
 
+func (rd *RegexDefinitions) Clone() *RegexDefinitions {
+	if rd == nil {
+		return nil
+	}
+
+	rd2 := &RegexDefinitions{
+		UA:     make([]*uaParser, len(rd.UA)),
+		OS:     make([]*osParser, len(rd.OS)),
+		Device: make([]*deviceParser, len(rd.Device)),
+	}
+
+	for i, v := range rd.UA {
+		rd2.UA[i] = v.Clone()
+	}
+
+	for i, v := range rd.OS {
+		rd2.OS[i] = v.Clone()
+	}
+
+	for i, v := range rd.Device {
+		rd2.Device[i] = v.Clone()
+	}
+
+	return rd2
+}
+
 type UserAgentSorter []*uaParser
 
 func (a UserAgentSorter) Len() int      { return len(a) }
@@ -46,18 +72,29 @@ type uaParser struct {
 	MatchesCount      uint64
 }
 
-func (ua *uaParser) setDefaults() {
-	if ua.FamilyReplacement == "" {
-		ua.FamilyReplacement = "$1"
+func (uap *uaParser) Clone() *uaParser {
+	if uap == nil {
+		return nil
 	}
-	if ua.V1Replacement == "" {
-		ua.V1Replacement = "$2"
+
+	ua2 := *uap
+	ua2.MatchesCount = 0
+
+	return &ua2
+}
+
+func (uap *uaParser) setDefaults() {
+	if uap.FamilyReplacement == "" {
+		uap.FamilyReplacement = "$1"
 	}
-	if ua.V2Replacement == "" {
-		ua.V2Replacement = "$3"
+	if uap.V1Replacement == "" {
+		uap.V1Replacement = "$2"
 	}
-	if ua.V3Replacement == "" {
-		ua.V3Replacement = "$4"
+	if uap.V2Replacement == "" {
+		uap.V2Replacement = "$3"
+	}
+	if uap.V3Replacement == "" {
+		uap.V3Replacement = "$4"
 	}
 }
 
@@ -82,21 +119,32 @@ type osParser struct {
 	MatchesCount  uint64
 }
 
-func (os *osParser) setDefaults() {
-	if os.OSReplacement == "" {
-		os.OSReplacement = "$1"
+func (osp *osParser) Clone() *osParser {
+	if osp == nil {
+		return nil
 	}
-	if os.V1Replacement == "" {
-		os.V1Replacement = "$2"
+
+	os2 := *osp
+	os2.MatchesCount = 0
+
+	return &os2
+}
+
+func (osp *osParser) setDefaults() {
+	if osp.OSReplacement == "" {
+		osp.OSReplacement = "$1"
 	}
-	if os.V2Replacement == "" {
-		os.V2Replacement = "$3"
+	if osp.V1Replacement == "" {
+		osp.V1Replacement = "$2"
 	}
-	if os.V3Replacement == "" {
-		os.V3Replacement = "$4"
+	if osp.V2Replacement == "" {
+		osp.V2Replacement = "$3"
 	}
-	if os.V4Replacement == "" {
-		os.V4Replacement = "$5"
+	if osp.V3Replacement == "" {
+		osp.V3Replacement = "$4"
+	}
+	if osp.V4Replacement == "" {
+		osp.V4Replacement = "$5"
 	}
 }
 
@@ -119,12 +167,23 @@ type deviceParser struct {
 	MatchesCount      uint64
 }
 
-func (device *deviceParser) setDefaults() {
-	if device.DeviceReplacement == "" {
-		device.DeviceReplacement = "$1"
+func (dp *deviceParser) Clone() *deviceParser {
+	if dp == nil {
+		return nil
 	}
-	if device.ModelReplacement == "" {
-		device.ModelReplacement = "$1"
+
+	device2 := *dp
+	device2.MatchesCount = 0
+
+	return &device2
+}
+
+func (dp *deviceParser) setDefaults() {
+	if dp.DeviceReplacement == "" {
+		dp.DeviceReplacement = "$1"
+	}
+	if dp.ModelReplacement == "" {
+		dp.ModelReplacement = "$1"
 	}
 }
 
@@ -209,6 +268,10 @@ func New(options ...Option) (*Parser, error) {
 	if parser.RegexDefinitions == nil {
 		regexesDefinitions := defaultRegexesDefinitions()
 		parser.RegexDefinitions = &regexesDefinitions
+	}
+
+	if parser.config.UseSort {
+		parser.RegexDefinitions = parser.RegexDefinitions.Clone()
 	}
 
 	parser.mustCompile()
