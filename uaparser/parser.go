@@ -424,13 +424,7 @@ func checkAndSort(parser *Parser) {
 		}
 		parser.UserAgentMisses = 0
 
-		// create a copy to avoid modifying the original slice while in use.
-		uaDefinitions := make([]*uaParser, len(parser.RegexDefinitions.UA))
-		copy(uaDefinitions, parser.RegexDefinitions.UA)
-
-		sort.Sort(UserAgentSorter(uaDefinitions))
-
-		parser.RegexDefinitions.UA = uaDefinitions
+		sort.Sort(UserAgentSorter(parser.RegexDefinitions.UA))
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
