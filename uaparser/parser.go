@@ -434,13 +434,7 @@ func checkAndSort(parser *Parser) {
 		}
 		parser.OsMisses = 0
 
-		// create a copy to avoid modifying the original slice while in use.
-		osDefinitions := make([]*osParser, len(parser.RegexDefinitions.OS))
-		copy(osDefinitions, parser.RegexDefinitions.OS)
-
-		sort.Sort(OsSorter(osDefinitions))
-
-		parser.RegexDefinitions.OS = osDefinitions
+		sort.Sort(OsSorter(parser.RegexDefinitions.OS))
 	}
 	parser.mu.Unlock()
 	parser.mu.Lock()
