@@ -444,13 +444,7 @@ func checkAndSort(parser *Parser) {
 		}
 		parser.DeviceMisses = 0
 
-		// create a copy to avoid modifying the original slice while in use.
-		deviceDefinitions := make([]*deviceParser, len(parser.RegexDefinitions.Device))
-		copy(deviceDefinitions, parser.RegexDefinitions.Device)
-
-		sort.Sort(DeviceSorter(deviceDefinitions))
-
-		parser.RegexDefinitions.Device = deviceDefinitions
+		sort.Sort(DeviceSorter(parser.RegexDefinitions.Device))
 	}
 	parser.mu.Unlock()
 }
