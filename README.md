@@ -42,14 +42,29 @@ package main
 import (
   "fmt"
   "log"
+  "os"
 
   "github.com/ua-parser/uap-go/uaparser"
+  "gopkg.in/yaml.v3"
 )
 
 func main() {
   uagent := "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-80) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true"
 
-  parser, err := uaparser.New("./regexes.yaml")
+
+  regexes, err := os.ReadFile("./regexes.yaml")
+  if err != nil {
+	  log.Fatal(err)
+  }
+
+  var def *uaparser.RegexesDefinitions
+
+  if err := yaml.Unmarshal(regexes, def); err != nil {
+    fmt.Printf("error parsing regexes definitions. Error: %s\n", err.Error())
+    return
+  }
+  
+  parser, err := uaparser.New(uaparser.WithRegexesDefinitions(def))
   if err != nil {
     log.Fatal(err)
   }

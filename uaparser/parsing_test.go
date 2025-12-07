@@ -12,7 +12,19 @@ var testParser *Parser
 
 func init() {
 	var err error
-	testParser, err = New("../uap-core/regexes.yaml")
+
+	uaRegexes, err := os.ReadFile("../uap-core/regexes.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var def RegexDefinitions
+
+	if err := yaml.Unmarshal(uaRegexes, &def); err != nil {
+		log.Fatal(err)
+	}
+
+	testParser, err = New(WithRegexDefinitions(def))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,8 +50,13 @@ func TestOSParsing(t *testing.T) {
 	}
 }
 
-func TestReadsInteralYAML(t *testing.T) {
-	_ = NewFromSaved() // should not panic
+func TestReadsInternalYAML(t *testing.T) {
+	t.Parallel()
+
+	_, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestUAParsing(t *testing.T) {

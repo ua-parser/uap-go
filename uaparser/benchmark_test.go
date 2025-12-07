@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 var benchedParser *Parser
@@ -15,11 +17,30 @@ var largeUasSample []string
 
 func init() {
 	var err error
-	benchedParser, err = New("../uap-core/regexes.yaml")
+
+	regexes, err := os.ReadFile("../uap-core/regexes.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	benchedParserWithOptions, err = NewWithOptions("../uap-core/regexes.yaml", (EOsLookUpMode | EUserAgentLookUpMode), 100, 20, true, true, cDefaultCacheSize)
+
+	var def RegexDefinitions
+
+	if err := yaml.Unmarshal(regexes, &def); err != nil {
+		log.Fatal(err)
+	}
+
+	benchedParser, err = New(WithRegexDefinitions(def))
+	if err != nil {
+		log.Fatal(err)
+	}
+	benchedParserWithOptions, err = New(WithRegexDefinitions(def),
+		WithMode(EOsLookUpMode|EUserAgentLookUpMode),
+		WithMatchIdxNotOk(20),
+		WithSort(true, WithMissesThreshold(100)),
+		WithDebug(true),
+		WithCacheSize(cDefaultCacheSize),
+	)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,17 +69,27 @@ func BenchmarkParserWithOptions(b *testing.B) {
 }
 
 func BenchmarkParserWithDifferentCacheSize(b *testing.B) {
-	sizes := []int{cDefaultCacheSize, cDefaultCacheSize*2, cDefaultCacheSize*3, cDefaultCacheSize*4}
+	sizes := []int{cDefaultCacheSize, cDefaultCacheSize * 2, cDefaultCacheSize * 3, cDefaultCacheSize * 4}
+
+	regexes, err := os.ReadFile("../uap-core/regexes.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var def RegexDefinitions
+
+	if err := yaml.Unmarshal(regexes, &def); err != nil {
+		log.Fatal(err)
+	}
 
 	for _, size := range sizes {
-		parser, err := NewWithOptions(
-			"../uap-core/regexes.yaml",
-			EOsLookUpMode | EUserAgentLookUpMode | EDeviceLookUpMode,
-			cDefaultMissesTreshold,
-			cDefaultMatchIdxNotOk,
-			false,
-			false,
-			size)
+		parser, err := New(WithRegexDefinitions(def),
+			WithMode(EOsLookUpMode|EUserAgentLookUpMode|EDeviceLookUpMode),
+			WithMatchIdxNotOk(cDefaultMatchIdxNotOk),
+			WithSort(false, WithMissesThreshold(cDefaultMissesTreshold)),
+			WithDebug(false),
+			WithCacheSize(size),
+		)
 		if err != nil {
 			log.Fatal(err)
 		}

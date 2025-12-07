@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ua-parser/uap-go/uaparser"
+	"gopkg.in/yaml.v3"
 )
 
 func main() {
@@ -16,12 +17,33 @@ func main() {
 		fmt.Printf("Usage: %s [old|new|both] [concurrency level]\n", os.Args[0])
 		return
 	}
+
+	regexes, err := os.ReadFile("./uap-core/regexes.yaml")
+	if err != nil {
+		fmt.Printf("Failed to read regexes file. Error: %s\n", err.Error())
+		return
+	}
+
+	var def uaparser.RegexDefinitions
+
+	if err := yaml.Unmarshal(regexes, &def); err != nil {
+		fmt.Printf("error parsing regexes definitions. Error: %s\n", err.Error())
+		return
+	}
+
 	var wg sync.WaitGroup
 	cLevel, _ := strconv.Atoi(os.Args[2])
 	switch os.Args[1] {
 	case "new":
 		fmt.Println("Running new version of uap...")
-		uaParser, _ := uaparser.NewWithOptions("./uap-core/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true, 1024)
+		uaParser, _ := uaparser.New(
+			uaparser.WithRegexDefinitions(def),
+			uaparser.WithMode(uaparser.EOsLookUpMode|uaparser.EUserAgentLookUpMode),
+			uaparser.WithMatchIdxNotOk(20),
+			uaparser.WithSort(true, uaparser.WithMissesThreshold(100)),
+			uaparser.WithDebug(true),
+			uaparser.WithCacheSize(1024),
+		)
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			go runTest(uaParser, i, &wg)
@@ -30,7 +52,7 @@ func main() {
 		return
 	case "old":
 		fmt.Println("Running old version of uap...")
-		uaParser, _ := uaparser.New("./uap-core/regexes.yaml")
+		uaParser, _ := uaparser.New(uaparser.WithRegexDefinitions(def))
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			go runTest(uaParser, i, &wg)
@@ -39,13 +61,20 @@ func main() {
 		return
 	case "both":
 		fmt.Println("Running new version of uap...")
-		uaParser, _ := uaparser.NewWithOptions("./uap-core/regexes.yaml", (uaparser.EOsLookUpMode | uaparser.EUserAgentLookUpMode), 100, 20, true, true, 1024)
+		uaParser, _ := uaparser.New(
+			uaparser.WithRegexDefinitions(def),
+			uaparser.WithMode(uaparser.EOsLookUpMode|uaparser.EUserAgentLookUpMode),
+			uaparser.WithMatchIdxNotOk(20),
+			uaparser.WithSort(true, uaparser.WithMissesThreshold(100)),
+			uaparser.WithDebug(true),
+			uaparser.WithCacheSize(1024),
+		)
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			runTest(uaParser, i, &wg)
 		}
 		fmt.Println("Running old version of uap...")
-		uaParser, _ = uaparser.New("./uap-core/regexes.yaml")
+		uaParser, _ = uaparser.New(uaparser.WithRegexDefinitions(def))
 		for i := 0; i < cLevel; i++ {
 			wg.Add(1)
 			runTest(uaParser, i, &wg)
