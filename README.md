@@ -57,9 +57,9 @@ func main() {
 	  log.Fatal(err)
   }
 
-  var def *uaparser.RegexDefinitions
+  var def uaparser.RegexDefinitions
 
-  if err := yaml.Unmarshal(regexes, def); err != nil {
+  if err := yaml.Unmarshal(regexes, &def); err != nil {
     fmt.Printf("error parsing regexes definitions. Error: %s\n", err.Error())
     return
   }
