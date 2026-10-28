@@ -3,7 +3,7 @@ package uaparser
 import (
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 // NewWithOptions is deprecated.
