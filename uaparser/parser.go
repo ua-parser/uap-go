@@ -271,7 +271,7 @@ func New(options ...Option) (*Parser, error) {
 		// slice elements.
 		regexesDefinitions := defaultRegexesDefinitions()
 		parser.RegexDefinitions = regexesDefinitions.Clone()
-	} else if parser.config.UseSort {
+	} else {
 		parser.RegexDefinitions = parser.RegexDefinitions.Clone()
 	}
 
@@ -302,27 +302,21 @@ func (parser *Parser) Parse(line string) *Client {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.mu.RLock()
 			cli.UserAgent = parser.ParseUserAgent(line)
-			parser.mu.RUnlock()
 		}()
 	}
 	if EOsLookUpMode&parser.config.Mode == EOsLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.mu.RLock()
 			cli.Os = parser.ParseOs(line)
-			parser.mu.RUnlock()
 		}()
 	}
 	if EDeviceLookUpMode&parser.config.Mode == EDeviceLookUpMode {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parser.mu.RLock()
 			cli.Device = parser.ParseDevice(line)
-			parser.mu.RUnlock()
 		}()
 	}
 	wg.Wait()
@@ -333,6 +327,10 @@ func (parser *Parser) Parse(line string) *Client {
 }
 
 func (parser *Parser) ParseUserAgent(line string) *UserAgent {
+	if parser.mu != nil {
+		parser.mu.RLock()
+		defer parser.mu.RUnlock()
+	}
 	cachedUA, ok := parser.cache.userAgent.Get(line)
 	if ok {
 		return cachedUA.(*UserAgent)
@@ -360,6 +358,10 @@ func (parser *Parser) ParseUserAgent(line string) *UserAgent {
 }
 
 func (parser *Parser) ParseOs(line string) *Os {
+	if parser.mu != nil {
+		parser.mu.RLock()
+		defer parser.mu.RUnlock()
+	}
 	cachedOS, ok := parser.cache.os.Get(line)
 	if ok {
 		return cachedOS.(*Os)
@@ -389,6 +391,10 @@ func (parser *Parser) ParseOs(line string) *Os {
 }
 
 func (parser *Parser) ParseDevice(line string) *Device {
+	if parser.mu != nil {
+		parser.mu.RLock()
+		defer parser.mu.RUnlock()
+	}
 	cachedDevice, ok := parser.cache.device.Get(line)
 	if ok {
 		return cachedDevice.(*Device)
@@ -418,36 +424,34 @@ func (parser *Parser) ParseDevice(line string) *Device {
 }
 
 func checkAndSort(parser *Parser) {
-	parser.mu.Lock()
+	if parser.mu != nil {
+		parser.mu.Lock()
+		defer parser.mu.Unlock()
+	}
 	if atomic.LoadUint64(&parser.UserAgentMisses) >= parser.config.MissesThreshold {
 		if parser.config.DebugMode {
 			fmt.Printf("%s\tSorting UserAgents slice\n", time.Now())
 		}
-		parser.UserAgentMisses = 0
+		atomic.StoreUint64(&parser.UserAgentMisses, 0)
 
 		sort.Sort(UserAgentSorter(parser.RegexDefinitions.UA))
 	}
-	parser.mu.Unlock()
-	parser.mu.Lock()
 	if atomic.LoadUint64(&parser.OsMisses) >= parser.config.MissesThreshold {
 		if parser.config.DebugMode {
 			fmt.Printf("%s\tSorting OS slice\n", time.Now())
 		}
-		parser.OsMisses = 0
+		atomic.StoreUint64(&parser.OsMisses, 0)
 
 		sort.Sort(OsSorter(parser.RegexDefinitions.OS))
 	}
-	parser.mu.Unlock()
-	parser.mu.Lock()
 	if atomic.LoadUint64(&parser.DeviceMisses) >= parser.config.MissesThreshold {
 		if parser.config.DebugMode {
 			fmt.Printf("%s\tSorting Device slice\n", time.Now())
 		}
-		parser.DeviceMisses = 0
+		atomic.StoreUint64(&parser.DeviceMisses, 0)
 
 		sort.Sort(DeviceSorter(parser.RegexDefinitions.Device))
 	}
-	parser.mu.Unlock()
 }
 
 func compileRegex(flags, expr string) *regexp.Regexp {
